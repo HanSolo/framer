@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.micronaut.http.HttpHeaders.CACHE_CONTROL;
+import static eu.hansolo.toolbox.Constants.*;
 
 
 @Controller("/framer/v1.0/")
@@ -97,7 +98,8 @@ public class FramerController {
      *             "name":"dofTrapezoid"
      *          }
      *       }
-     *    ]
+     *    ],
+     *    "msg":""
      * }
      * @param latitude1 The latitude of the camera location
      * @param longitude1 The longitude of the camera location
@@ -115,12 +117,12 @@ public class FramerController {
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
     public HttpResponse<?> calcFoV(@Nullable final Double latitude1, @Nullable final Double longitude1, @Nullable final Double latitude2, @Nullable final Double longitude2, @Nullable final Integer focal_length, @Nullable final Double aperture, @Nullable final String sensor_format, @Nullable final String orientation, final HttpRequest request) {
-        final double lat1         = null == latitude1 ? 0 : latitude1;
-        final double lon1         = null == longitude1 ? 0 : longitude1;
-        final double lat2         = null == latitude2 ? 0 : latitude2;
-        final double lon2         = null == longitude2 ? 0 : longitude2;
-        final int    focalLength  = null == focal_length ? 50 : focal_length;
-        final double apert        = null == aperture ? 2.8 : aperture;
+        final double lat1         = null == latitude1    ? 0   : latitude1;
+        final double lon1         = null == longitude1   ? 0   : longitude1;
+        final double lat2         = null == latitude2    ? 0   : latitude2;
+        final double lon2         = null == longitude2   ? 0   : longitude2;
+        final int    focalLength  = null == focal_length ? 50  : focal_length;
+        final double apert        = null == aperture     ? 2.8 : aperture;
         SensorFormat sensorFormat = SensorFormat.fromText(sensor_format);
         Orientation  orient       = Orientation.fromText(orientation);
 
@@ -129,9 +131,16 @@ public class FramerController {
 
         final GeoLocation cameraLocation  = new GeoLocation(lat1, lon1);
         final GeoLocation subjectLocation = new GeoLocation(lat2, lon2);
-        final Data data = Helper.calc(cameraLocation, subjectLocation, focalLength, apert, sensorFormat, orient);
+        try {
+            final Data         data     = Helper.calc(cameraLocation, subjectLocation, focalLength, apert, sensorFormat, orient);
+            final HttpResponse response = HttpResponse.ok(data.toString()).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+            return response;
+        } catch (Exception e) {
+            final String msg = Data.getErrorMessage("Check your values for focal length, aperture or coordinates");
+            final HttpResponse response = HttpResponse.badRequest(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.BAD_REQUEST);
+            return response;
+        }
 
-        HttpResponse response = HttpResponse.ok(data.toString()).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
-        return response;
+
     }
 }
