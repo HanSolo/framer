@@ -6,6 +6,10 @@ Returns a json format that contains data related to field of view and depth of f
 All distances are either in millimeter (sensor_width, sensor_height, focal_length) or in meter (distance_to_subject, hyper_focal_distance, fov_width, fov_height, dof_near_limit, dof_far_limit, dof_total)
 All angles are given in degrees (fov_width_angle, fov_height_angle)
 
+The focal length must be in the range from 8 - 2400 mm
+The aperture must be in the range of 0.7 - 99
+The distance between the camera and the subject must be in the range of 0.01 - 9999 m
+
 If you call the endpoint with:
 /framer/calc?latitude1=51.9120268350476&longitude1=7.6338728239553495&latitude2=51.911510620555674&longitude2=7.632810650837488&focal_length=400&aperture=4.5&sensor_format="full_format"&orientation="landscape"
  

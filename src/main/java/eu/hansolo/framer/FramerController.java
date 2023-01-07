@@ -105,8 +105,8 @@ public class FramerController {
      * @param longitude1 The longitude of the camera location
      * @param latitude2 The latitude of the subject location
      * @param longitude2 The longitude of the subject location
-     * @param focal_length The focal length of the used lens
-     * @param aperture The aperture of the used lens
+     * @param focal_length The focal length of the used lens (8 - 2400 [mm])
+     * @param aperture The aperture of the used lens (0.7 - 99 [f-stop])
      * @param sensor_format The sensor format (medium_format, full_format, aps_h, aps_c, aps_c_canon, micro_4_3)
      * @param orientation The orientation (landscape, portrait)
      * @param request
