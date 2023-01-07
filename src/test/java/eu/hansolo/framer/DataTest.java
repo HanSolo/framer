@@ -14,6 +14,8 @@ public class DataTest {
         Data data = Helper.calc(HOME, LOCATION_2,400, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE);
 
         System.out.println(data);
+
+        System.out.println(Data.getErrorMessage("wrong data"));
     }
 
 }
