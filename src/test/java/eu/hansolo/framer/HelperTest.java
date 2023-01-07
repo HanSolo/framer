@@ -1,0 +1,31 @@
+package eu.hansolo.framer;
+
+import org.junit.jupiter.api.Test;
+
+
+public class HelperTest {
+    private static final GeoLocation HOME       = new GeoLocation(51.9120268350476, 7.6338728239553495, 67);
+    private static final GeoLocation LOCATION_2 = new GeoLocation(51.911510620555674, 7.632810650837488, 65);
+    private static final GeoLocation NEW_YORK   = new GeoLocation(40.741895, -73.989308, 0);
+
+    @Test
+    void testGeoLocation() {
+        GeoLocation location = HOME.getCopy();
+
+        location.setLatitude(-120);
+        assert location.getLatitude() == -60;
+
+        location.setLatitude(120);
+        assert location.getLatitude() == 60;
+
+        location.setLongitude(-200);
+        assert location.getLongitude() == 160;
+
+        location.setLongitude(200);
+        assert location.getLongitude() == -160;
+
+        System.out.println(Helper.calcDistanceInMeters(HOME, NEW_YORK) / 1000);
+        System.out.println(Helper.calcDistanceInMetersPrecise(HOME, NEW_YORK) / 1000);
+
+    }
+}

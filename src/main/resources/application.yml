@@ -1,0 +1,29 @@
+micronaut:
+  server:
+    cors:
+      enabled: true
+      port: 80
+      netty:
+        worker:
+          event-loop-group: other
+          dual-protocol: true
+  netty:
+    event-loops:
+      other:
+        num-threads: 8
+  application:
+    name: framer
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+    versioning:
+      enabled: true
+netty:
+  default:
+    allocator:
+      max-order: 3
