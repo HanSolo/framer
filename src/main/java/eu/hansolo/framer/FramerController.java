@@ -6,12 +6,15 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.micronaut.http.HttpHeaders.CACHE_CONTROL;
 
 
-@Controller("/framer")
+@Controller("/framer/v1.0/")
 public class FramerController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FramerController.class);
 
     /**
      * Returns a json format that contains data related to field of view and depth of field.
