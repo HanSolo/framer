@@ -7,5 +7,5 @@ WORKDIR /app
 COPY build/libs/framer-*-all.jar /app/framer.jar
 
 USER javauser
-EXPOSE 80
+EXPOSE 8081
 CMD ["java", "-Xmx256m", "-jar", "framer.jar"]
