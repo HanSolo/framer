@@ -1,5 +1,6 @@
 package eu.hansolo.framer;
 
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.version.annotation.Version;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -110,10 +111,10 @@ public class FramerController {
      * @return A json object that contains data related to field of view and depth of field. In addition it contains two geometries (triangle of fov and trapezoid of dof)
      */
     @Version("1")
-    @Get("/calc")
+    @Get("/calc{?latitude1,longitude1,latitude2,longitude2,focal_length,aperture,sensor_format,orientation}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
-    public HttpResponse<?> calcFoV(final Double latitude1, final Double longitude1, final Double latitude2, final Double longitude2, final Integer focal_length, final Double aperture, final String sensor_format, final String orientation, final HttpRequest request) {
+    public HttpResponse<?> calcFoV(@Nullable final Double latitude1, @Nullable final Double longitude1, @Nullable final Double latitude2, @Nullable final Double longitude2, @Nullable final Integer focal_length, @Nullable final Double aperture, @Nullable final String sensor_format, @Nullable final String orientation, final HttpRequest request) {
         final double lat1         = null == latitude1 ? 0 : latitude1;
         final double lon1         = null == longitude1 ? 0 : longitude1;
         final double lat2         = null == latitude2 ? 0 : latitude2;
