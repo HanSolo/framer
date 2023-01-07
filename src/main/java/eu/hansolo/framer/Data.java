@@ -74,6 +74,10 @@ public class Data {
         Trapezoid dofTrapezoid = Helper.getDofTrapezoid(Data.this);
 
         final String res = new StringBuilder().append(CURLY_BRACKET_OPEN)
+                                              .append(QUOTES).append("camera_latitude").append(QUOTES).append(COLON).append(cameraLocation.getLatitude()).append(COMMA)
+                                              .append(QUOTES).append("camera_longitude").append(QUOTES).append(COLON).append(cameraLocation.getLongitude()).append(COMMA)
+                                              .append(QUOTES).append("subject_latitude").append(QUOTES).append(COLON).append(subjectLocation.getLatitude()).append(COMMA)
+                                              .append(QUOTES).append("subject_longitude").append(QUOTES).append(COLON).append(subjectLocation.getLongitude()).append(COMMA)
                                               .append(QUOTES).append("sensor_format").append(QUOTES).append(COLON).append(QUOTES).append(sensorFormat.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("sensor_width").append(QUOTES).append(COLON).append(sensorFormat.width).append(COMMA)
                                               .append(QUOTES).append("sensor_height").append(QUOTES).append(COLON).append(sensorFormat.height).append(COMMA)

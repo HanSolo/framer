@@ -19,6 +19,10 @@ public class FramerController {
      * All angles are given in degrees (fov_width_angle, fov_height_angle)
      * Example:
      * {
+     *    "camera_latitude":51.9120268350476,
+     *    "camera_longitude":7.6338728239553495,
+     *    "subject_latitude":51.911510620555674,
+     *    "subject_longitude":7.632810650837488,
      *    "sensor_format":"full_format",
      *    "sensor_width":36.0,
      *    "sensor_height":23.9,
