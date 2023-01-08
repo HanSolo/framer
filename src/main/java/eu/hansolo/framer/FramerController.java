@@ -91,8 +91,8 @@ public class FramerController {
 
         final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
-                                              .append(QUOTES).append("f_stop").append(QUOTES).append(COLON).append(fStop.apiString).append(COMMA)
-                                              .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(teleConverter.apiString).append(COMMA)
+                                              .append(QUOTES).append("f_stop").append(QUOTES).append(COLON).append(QUOTES).append(fStop.apiString).append(QUOTES).append(COMMA)
+                                              .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(QUOTES).append(teleConverter.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
                                               .append(QUOTES).append("converted_focal_length").append(QUOTES).append(COLON).append(convertedFocalLength).append(COMMA)
                                               .append(QUOTES).append("converted_f_stop").append(QUOTES).append(COLON).append(convertedFStop)
