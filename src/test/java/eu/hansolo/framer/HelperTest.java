@@ -25,7 +25,7 @@ public class HelperTest {
         assert location.getLongitude() == -160;
 
         System.out.println(Helper.calcDistanceInMeters(HOME, NEW_YORK) / 1000);
-        System.out.println(Helper.calcDistanceInMetersPrecise(HOME, NEW_YORK) / 1000);
+        System.out.println(Helper.calcDistanceInMetersMorePrecise(HOME, NEW_YORK) / 1000);
 
     }
 }

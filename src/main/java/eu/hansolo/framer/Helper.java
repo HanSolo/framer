@@ -7,7 +7,6 @@ public class Helper {
         if (value > max) return max;
         return value;
     }
-
     public static final double clampLatitude(final double latitude) {
         if (latitude < -90) {
             return -90 - (latitude % 90);
@@ -17,7 +16,6 @@ public class Helper {
             return latitude;
         }
     }
-
     public static final double clampLongitude(final double longitude) {
         if (longitude < -180) {
             return 180 + (longitude % 180);
@@ -48,27 +46,27 @@ public class Helper {
         return distance;
     }
 
-    public static double calcDistanceInMetersPrecise(final GeoLocation location1, final GeoLocation location2) {
-        return calcDistanceInMetersPrecise(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
+    public static double calcDistanceInMetersMorePrecise(final GeoLocation location1, final GeoLocation location2) {
+        return calcDistanceInMetersMorePrecise(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
     }
-    public static double calcDistanceInMetersPrecise(double lat1, double lon1, double lat2, double lon2) {
+    public static double calcDistanceInMetersMorePrecise(double latitude1, double longitude1, double latitude2, double longitude2) {
         final double PI_FACTOR = Math.PI / 180.0;
         final int MAXITERS = 20;
         // Convert lat/long to radians
-        lat1 *= PI_FACTOR;
-        lat2 *= PI_FACTOR;
-        lon1 *= PI_FACTOR;
-        lon2 *= PI_FACTOR;
+        latitude1 *= PI_FACTOR;
+        latitude2 *= PI_FACTOR;
+        longitude1 *= PI_FACTOR;
+        longitude2 *= PI_FACTOR;
 
         double a                  = Constants.WGS84_a; // WGS84 major axis
         double b                  = Constants.WGS84_b; // WGS84 semi-major axis
         double f                  = (a - b) / a;
         double aSqMinusBSqOverBSq = (a * a - b * b) / (b * b);
 
-        double L  = lon2 - lon1;
+        double L  = longitude2 - longitude1;
         double A  = 0.0;
-        double U1 = Math.atan((1.0 - f) * Math.tan(lat1));
-        double U2 = Math.atan((1.0 - f) * Math.tan(lat2));
+        double U1 = Math.atan((1.0 - f) * Math.tan(latitude1));
+        double U2 = Math.atan((1.0 - f) * Math.tan(latitude2));
 
         double cosU1      = Math.cos(U1);
         double cosU2      = Math.cos(U2);
@@ -159,8 +157,8 @@ public class Helper {
     }
     public static final double[] calcTrianglePoints(final Data data) {
         final double halfFovWidthAngle = data.fovWidthAngle / 2.0;
-        double[] p2 = calcCoord(data.cameraLocation, data.radius, -halfFovWidthAngle);
-        double[] p3 = calcCoord(data.cameraLocation, data.radius, halfFovWidthAngle);
+        double[] p2 = calcCoordinates(data.cameraLocation, data.radius, -halfFovWidthAngle);
+        double[] p3 = calcCoordinates(data.cameraLocation, data.radius, halfFovWidthAngle);
         return new double[] { data.cameraLocation.getLatitude(), data.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
     }
 
@@ -170,18 +168,18 @@ public class Helper {
     }
     public static final double[] calcTrapezoidPoints(final Data data) {
         final double halfFovWidthAngle = data.fovWidthAngle / 2.0;
-        final double radius1           = data.nearLimit / Math.cos(halfFovWidthAngle);
-        final double radius2           = data.farLimit / Math.cos(halfFovWidthAngle);
+        final double radius1           = data.dofNearLimit / Math.cos(halfFovWidthAngle);
+        final double radius2           = data.dofFarLimit / Math.cos(halfFovWidthAngle);
 
-        final double p1[] = calcCoord(data.cameraLocation, radius1, -halfFovWidthAngle);
-        final double p2[] = calcCoord(data.cameraLocation, radius2, -halfFovWidthAngle);
-        final double p3[] = calcCoord(data.cameraLocation, radius2, halfFovWidthAngle);
-        final double p4[] = calcCoord(data.cameraLocation, radius1, halfFovWidthAngle);
+        final double p1[] = calcCoordinates(data.cameraLocation, radius1, -halfFovWidthAngle);
+        final double p2[] = calcCoordinates(data.cameraLocation, radius2, -halfFovWidthAngle);
+        final double p3[] = calcCoordinates(data.cameraLocation, radius2, halfFovWidthAngle);
+        final double p4[] = calcCoordinates(data.cameraLocation, radius1, halfFovWidthAngle);
 
         return new double[] { p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1] };
     }
 
-    public static final double[] calcCoord(final GeoLocation start, final double distance, final double bearing) {
+    public static final double[] calcCoordinates(final GeoLocation start, final double distance, final double bearing) {
         double lat1   = Math.toRadians(start.getLatitude());
         double lon1   = Math.toRadians(start.getLongitude());
         double radius = distance / Constants.WGS84_a;
@@ -196,6 +194,7 @@ public class Helper {
     public static final Data calc(final GeoLocation cameraLocation, final GeoLocation subjectLocation,
                                   final int focalLength, final double aperture,
                                   final SensorFormat sensorFormat, final Orientation orientation) {
+
         final double distance = cameraLocation.getDistanceTo(subjectLocation);
 
         if (focalLength < 8    || focalLength > 2400) { throw new IllegalArgumentException("Error, focal length must be between 8mm and 2400mm"); }
@@ -220,10 +219,11 @@ public class Helper {
         final double fovHeight          = Orientation.LANDSCAPE == orientation ? Math.sin(phi) * diagonalLength : Math.cos(phi) * diagonalLength;
         final double halfFovWidth       = fovWidth * 0.5;
         final double halfFovHeight      = fovHeight * 0.5;
-        final double fovWidthAngle      = 2 * Math.asin(halfFovWidth / Math.sqrt((distance * distance) + (halfFovWidth * halfFovWidth)));
-        final double fovHeightAngle     = 2 * Math.asin(halfFovHeight / Math.sqrt((distance * distance) + (halfFovHeight * halfFovHeight)));
+        final double fovWidthAngle      = 2 * Math.asin(halfFovWidth / Math.sqrt((distance * distance) + (halfFovWidth * halfFovWidth))) * 100;
+        final double fovHeightAngle     = 2 * Math.asin(halfFovHeight / Math.sqrt((distance * distance) + (halfFovHeight * halfFovHeight))) * 100;
+        final double maxSubjectHeight   = halfFovHeight < Constants.CAMERA_HEIGHT ? fovHeight : Constants.CAMERA_HEIGHT + halfFovHeight;
         final double radius             = Math.sqrt((halfFovWidth * halfFovWidth) + (distance * distance));
 
-        return new Data(cameraLocation, subjectLocation, focalLengthInMeter, aperture, sensorFormat, orientation, infinite, hyperFocal, nearLimit, farLimit, frontPercent, behindPercent, total, diagonalAngle, diagonalLength, fovWidth, fovWidthAngle, fovHeight, fovHeightAngle, radius);
+        return new Data(cameraLocation, subjectLocation, focalLengthInMeter, aperture, sensorFormat, orientation, infinite, hyperFocal, nearLimit, farLimit, frontPercent, behindPercent, total, diagonalAngle, diagonalLength, fovWidth, fovWidthAngle, fovHeight, fovHeightAngle, maxSubjectHeight, radius);
     }
 }

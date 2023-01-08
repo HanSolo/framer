@@ -15,33 +15,35 @@ public class Data {
     public final Orientation  orientation;
     public final boolean      infinite;
     public final double       hyperFocal;
-    public final double       nearLimit;
-    public final double       farLimit;
-    public final double       frontPercent;
-    public final double       behindPercent;
-    public final double       total;
-    public final double       diagonalAngle;
-    public final double       diagonalLength;
+    public final double       dofNearLimit;
+    public final double       dofFarLimit;
+    public final double       dofFrontPercent;
+    public final double       dofBehindPercent;
+    public final double       dofInFront;
+    public final double       dofBehind;
+    public final double       dofTotal;
+    public final double       fovDiagonalAngle;
+    public final double       fovDiagonalLength;
     public final double       fovWidth;
     public final double       fovWidthAngle;
     public final double       fovHeight;
     public final double       fovHeightAngle;
+    public final double       maxSubjectHeight;
     public final double       radius;
     public final double       angleBetweenCameraAndMotif;
-    public final double       dofInFront;
-    public final double       dofBehind;
+
 
 
     public Data(final GeoLocation cameraLocation, final GeoLocation subjectLocation,
                 final double focalLength, final double aperture,
                 final SensorFormat sensorFormat,
                 final Orientation orientation,
-                final boolean infinite, final double hyperFocal, final double nearLimit, final double farLimit,
-                final double frontPercent, final double behindPercent, final double total,
-                final double diagonalAngle, final double diagonalLength,
+                final boolean infinite, final double hyperFocal, final double dofNearLimit, final double dofFarLimit,
+                final double dofFrontPercent, final double dofBehindPercent, final double dofTotal,
+                final double fovDiagonalAngle, final double fovDiagonalLength,
                 final double fovWidth, final double fovWidthAngle,
                 final double fovHeight, final double fovHeightAngle,
-                final double radius) {
+                final double maxSubjectHeight, final double radius) {
         this.cameraLocation             = cameraLocation;
         this.subjectLocation            = subjectLocation;
         this.focalLength                = focalLength;
@@ -51,21 +53,22 @@ public class Data {
         this.orientation                = orientation;
         this.infinite                   = infinite;
         this.hyperFocal                 = hyperFocal;
-        this.nearLimit                  = nearLimit;
-        this.farLimit                   = infinite ? 10000 : farLimit;
-        this.frontPercent               = frontPercent;
-        this.behindPercent              = behindPercent;
-        this.total                      = infinite ? 10000 : total;
-        this.diagonalAngle              = diagonalAngle;
-        this.diagonalLength             = diagonalLength;
+        this.dofNearLimit               = dofNearLimit;
+        this.dofFarLimit                = infinite ? 10000 : dofFarLimit;
+        this.dofFrontPercent            = dofFrontPercent;
+        this.dofBehindPercent           = dofBehindPercent;
+        this.dofTotal                   = infinite ? 10000 : dofTotal;
+        this.fovDiagonalAngle           = fovDiagonalAngle;
+        this.fovDiagonalLength          = fovDiagonalLength;
         this.fovWidth                   = fovWidth;
         this.fovWidthAngle              = fovWidthAngle;
         this.fovHeight                  = fovHeight;
         this.fovHeightAngle             = fovHeightAngle;
+        this.maxSubjectHeight           = maxSubjectHeight;
         this.radius                     = radius;
         this.angleBetweenCameraAndMotif = Math.toRadians(Helper.calcBearingInDegree(cameraLocation, subjectLocation));
-        this.dofInFront                 = distance - nearLimit;
-        this.dofBehind                  = infinite ? 10000 : farLimit - distance;
+        this.dofInFront                 = distance - dofNearLimit;
+        this.dofBehind                  = infinite ? 10000 : dofFarLimit - distance;
     }
 
     public static String getErrorMessage(final String msg) {
@@ -88,7 +91,10 @@ public class Data {
                                   .append(QUOTES).append("fov_height_angle").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("dof_near_limit").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("dof_far_limit").append(QUOTES).append(COLON).append(0).append(COMMA)
+                                  .append(QUOTES).append("dof_in_front").append(QUOTES).append(COLON).append(0).append(COMMA)
+                                  .append(QUOTES).append("dof_behind").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("dof_total").append(QUOTES).append(COLON).append(0).append(COMMA)
+                                  .append(QUOTES).append("max_subject_height").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("features").append(QUOTES).append(COLON).append(SQUARE_BRACKET_OPEN)
                                   .append(CURLY_BRACKET_OPEN)
                                   .append(QUOTES).append("type").append(QUOTES).append(COLON).append(QUOTES).append("Feature").append(QUOTES).append(COMMA)
@@ -124,8 +130,8 @@ public class Data {
     }
 
     @Override public String toString() {
-        Triangle  fovTriangle  = Helper.getFoVTriangle(Data.this);
-        Trapezoid dofTrapezoid = Helper.getDofTrapezoid(Data.this);
+        final Triangle  fovTriangle  = Helper.getFoVTriangle(Data.this);
+        final Trapezoid dofTrapezoid = Helper.getDofTrapezoid(Data.this);
 
         final String res = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("camera_latitude").append(QUOTES).append(COLON).append(cameraLocation.getLatitude()).append(COMMA)
@@ -144,9 +150,12 @@ public class Data {
                                               .append(QUOTES).append("fov_height").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", fovHeight)).append(COMMA)
                                               .append(QUOTES).append("fov_width_angle").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", fovWidthAngle)).append(COMMA)
                                               .append(QUOTES).append("fov_height_angle").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", fovHeightAngle)).append(COMMA)
-                                              .append(QUOTES).append("dof_near_limit").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", nearLimit)).append(COMMA)
-                                              .append(QUOTES).append("dof_far_limit").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", farLimit)).append(COMMA)
-                                              .append(QUOTES).append("dof_total").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", total)).append(COMMA)
+                                              .append(QUOTES).append("dof_near_limit").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", dofNearLimit)).append(COMMA)
+                                              .append(QUOTES).append("dof_far_limit").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", dofFarLimit)).append(COMMA)
+                                              .append(QUOTES).append("dof_in_front").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", dofInFront)).append(COMMA)
+                                              .append(QUOTES).append("dof_behind").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", dofBehind)).append(COMMA)
+                                              .append(QUOTES).append("dof_total").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", dofTotal)).append(COMMA)
+                                              .append(QUOTES).append("max_subject_height").append(QUOTES).append(COLON).append(String.format(Locale.US, "%.2f", maxSubjectHeight)).append(COMMA)
                                               .append(QUOTES).append("features").append(QUOTES).append(COLON).append(SQUARE_BRACKET_OPEN)
                                               .append(fovTriangle).append(COMMA)
                                               .append(dofTrapezoid)

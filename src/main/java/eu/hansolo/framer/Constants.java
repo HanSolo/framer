@@ -8,4 +8,7 @@ public class Constants {
 
     // Polar radius of WGS84 ellipsoid [m]
     public static final double WGS84_b = 6_356_752.3142;
+
+    // Camera height above ground
+    public static final double CAMERA_HEIGHT = 1.6;
 }

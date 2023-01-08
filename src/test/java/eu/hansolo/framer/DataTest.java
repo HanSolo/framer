@@ -2,8 +2,6 @@ package eu.hansolo.framer;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Locale;
-
 
 public class DataTest {
     private static final GeoLocation HOME       = new GeoLocation(51.9120268350476, 7.6338728239553495, 67);
@@ -11,11 +9,11 @@ public class DataTest {
 
     @Test
     void dataTest() {
-        Data data = Helper.calc(HOME, LOCATION_2,400, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE);
-
-        System.out.println(data);
-
-        System.out.println(Data.getErrorMessage("wrong data"));
+        try {
+            Data wrongData = Helper.calc(HOME, LOCATION_2, 3000, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE);
+        } catch (IllegalArgumentException e) {
+            assert e.getMessage().equals("Error, focal length must be between 8mm and 2400mm");
+        }
     }
 
 }

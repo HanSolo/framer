@@ -53,7 +53,7 @@ public class GeoLocation {
         elevation = location.getElevation();
     }
 
-    public double getDistanceTo(final GeoLocation location) { return Helper.calcDistanceInMetersPrecise(this, location); }
+    public double getDistanceTo(final GeoLocation location) { return Helper.calcDistanceInMetersMorePrecise(this, location); }
 
     public boolean isWithinRangeOf(final GeoLocation location, final double meters) { return getDistanceTo(location) < meters; }
 

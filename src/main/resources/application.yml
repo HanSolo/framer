@@ -28,14 +28,14 @@ netty:
   default:
     allocator:
       max-order: 3
-endpoints:
-  health:
-    enabled: true
-    sensitive: false
-    details-visible: ANONYMOUS
-  info:
-    enabled: true
-    sensitive: false
-  routes:
-    enabled: true
-    sensitive: true
+#endpoints:
+#  health:
+#    enabled: true
+#    sensitive: false
+#    details-visible: ANONYMOUS
+#  info:
+#    enabled: true
+#    sensitive: false
+#  routes:
+#    enabled: true
+#    sensitive: true

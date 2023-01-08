@@ -98,3 +98,5 @@ You will get this response:
   "msg":""
 }
 ```` 
+Explanation:
+![Image](https://i.ibb.co/gP7G41N/image1.png)
