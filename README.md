@@ -101,4 +101,4 @@ You will get this response:
 }
 ```` 
 Explanation:
-![Image](https://i.ibb.co/gP7G41N/image1.png)
+![Image](https://i.ibb.co/9hdxbSQ/image1.png)
