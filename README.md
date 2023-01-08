@@ -14,9 +14,11 @@ The distance between the camera and the subject must be in the range of 0.01 - 9
 
 In case of an error you will get the same response as with valid data but all values are 0 and the msg at the end will contain some info.
 
+[Swagger documentation](http://hansolo.eu:8081/swagger-ui)
+
 If you call the endpoint with:
 /framer/calc?latitude1=51.9120268350476&longitude1=7.6338728239553495&latitude2=51.911510620555674&longitude2=7.632810650837488&focal_length=400&aperture=4.5&sensor_format="full_format"&orientation="landscape"
- 
+
 You will get this response:
 ````json
 {
