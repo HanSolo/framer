@@ -1,5 +1,6 @@
 package eu.hansolo.framer;
 
+
 public enum Orientation {
     LANDSCAPE("Landscape", "landscape"),
     PORTRAIT("Portrait", "portrait"),

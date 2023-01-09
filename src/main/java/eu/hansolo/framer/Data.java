@@ -1,7 +1,5 @@
 package eu.hansolo.framer;
 
-import java.util.Locale;
-
 import static eu.hansolo.toolbox.Constants.*;
 
 
@@ -33,7 +31,7 @@ public class Data {
     public final double       angleBetweenCameraAndMotif;
 
 
-
+    // ******************** Constructors **************************************
     public Data(final GeoLocation cameraLocation, final GeoLocation subjectLocation,
                 final double focalLength, final double aperture,
                 final SensorFormat sensorFormat,
@@ -71,6 +69,8 @@ public class Data {
         this.dofBehind                  = infinite ? 10000 : dofFarLimit - distance;
     }
 
+
+    // ******************** Methods *******************************************
     public static String getErrorMessage(final String msg) {
         return new StringBuilder().append(CURLY_BRACKET_OPEN)
                                   .append(QUOTES).append("camera_latitude").append(QUOTES).append(COLON).append(0).append(COMMA)

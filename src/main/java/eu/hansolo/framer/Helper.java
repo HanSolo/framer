@@ -2,6 +2,11 @@ package eu.hansolo.framer;
 
 public class Helper {
 
+    public static final int clamp(final int min, final int max, final int value) {
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
+    }
     public static final double clamp(final double min, final double max, final double value) {
         if (value < min) return min;
         if (value > max) return max;
@@ -190,9 +195,9 @@ public class Helper {
 
         final double distance = cameraLocation.getDistanceTo(subjectLocation);
 
-        if (focalLength < 8    || focalLength > 2400) { throw new IllegalArgumentException("Error, focal length must be between 8mm and 2400mm"); }
-        if (aperture    < 0.7  || aperture    > 99)   { throw new IllegalArgumentException("Error, aperture must be between f/0.7 and f/99"); }
-        if (distance    < 0.01 || distance    > 9999) { throw new IllegalArgumentException("Error, distance must be between 0.01m and 9999m"); }
+        if (focalLength < Constants.MIN_FOCAL_LENGTH || focalLength > Constants.MAX_FOCAL_LENGTH) { throw new IllegalArgumentException(new StringBuilder("Error, focal length must be between ").append(Constants.MIN_FOCAL_LENGTH).append("mm and ").append(Constants.MAX_FOCAL_LENGTH).append("mm").toString()); }
+        if (aperture    < Constants.MIN_APERTURE     || aperture    > Constants.MAX_APERTURE)     { throw new IllegalArgumentException(new StringBuilder("Error, aperture must be between f/").append(Constants.MIN_APERTURE).append(" and f/").append(Constants.MAX_APERTURE).toString()); }
+        if (distance    < Constants.MIN_DISTANCE     || distance    > Constants.MAX_DISTANCE)     { throw new IllegalArgumentException(new StringBuilder("Error, distance must be between ").append(Constants.MIN_DISTANCE).append("m and ").append(Constants.MAX_DISTANCE + "m").toString()); }
 
         final double cropFactor         = sensorFormat.cropFactor;
         final double focalLengthInMeter = focalLength / 1000.0;           // Do all calculations in metres (because that's sensible).

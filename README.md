@@ -17,7 +17,7 @@ In case of an error you will get the same response as with valid data but all va
 [Swagger documentation](http://hansolo.eu:8081/swagger-ui)
 
 If you call the endpoint with:
-/framer/calc?latitude1=51.9120268350476&longitude1=7.6338728239553495&latitude2=51.911510620555674&longitude2=7.632810650837488&focal_length=400&aperture=4.5&sensor_format="full_format"&orientation="landscape"
+/framer/v1.0/calc?latitude1=51.9120268350476&longitude1=7.6338728239553495&latitude2=51.911510620555674&longitude2=7.632810650837488&focal_length=400&aperture=4.5&sensor_format="full_format"&orientation="landscape"
 
 You will get this response:
 ````json
@@ -29,18 +29,21 @@ You will get this response:
   "sensor_format":"full_format",
   "sensor_width":36.0,
   "sensor_height":23.9,
-  "focal_length":400,
+  "focal_length":400.0,
   "aperture":4.5,
   "orientation":"landscape",
-  "distance_to_subject":92.96,
-  "hyper_focal_distance":1226.45,
-  "fov_width":8.36,
-  "fov_height":5.57,
-  "fov_width_angle":0.09,
-  "fov_height_angle":0.06,
-  "dof_near_limit":86.43,
-  "dof_far_limit":100.55,
-  "dof_total":14.12,
+  "distance_to_subject":92.95879480138197,
+  "hyper_focal_distance":1226.4536398467437,
+  "fov_width":8.355580723679628,
+  "fov_height":5.570387763842713,
+  "fov_width_angle":8.982433522447536,
+  "fov_height_angle":5.9905271280243655,
+  "dof_near_limit":86.43363715314476,
+  "dof_far_limit":100.54961363096433,
+  "dof_in_front":6.525157648237212,
+  "dof_behind":7.590818829582361,
+  "dof_total":14.115976477819572,
+  "max_subject_height":4.3851938819213565,
   "features":[
     {
       "type":"Feature",
@@ -53,12 +56,12 @@ You will get this response:
               7.6338728239553495
             ],
             [
-              51.91286189809355,
-              7.63381198393061
+              51.911843452074216,
+              7.6351948851444105
             ],
             [
-              51.91286189809355,
-              7.633933663980064
+              51.911843452074216,
+              7.632550762766364
             ]
           ]
         ]
@@ -74,20 +77,20 @@ You will get this response:
         "coordinates":[
           [
             [
-              51.912803281607204,
-              7.633816254614454
+              51.91280314884838,
+              7.628274849095257
             ],
             [
-              51.91293008757662,
-              7.6338070157628275
+              51.912929907913,
+              7.627360593104878
             ],
             [
-              51.91293008757662,
-              7.633938632147846
+              51.912929907913,
+              7.640385054805796
             ],
             [
-              51.912803281607204,
-              7.633929393296321
+              51.91280314884838,
+              7.639470798815416
             ]
           ]
         ]

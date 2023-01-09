@@ -2,11 +2,7 @@ package eu.hansolo.framer;
 
 import java.util.Objects;
 
-import static eu.hansolo.toolbox.Constants.COLON;
-import static eu.hansolo.toolbox.Constants.COMMA;
-import static eu.hansolo.toolbox.Constants.CURLY_BRACKET_CLOSE;
-import static eu.hansolo.toolbox.Constants.CURLY_BRACKET_OPEN;
-import static eu.hansolo.toolbox.Constants.QUOTES;
+import static eu.hansolo.toolbox.Constants.*;
 
 
 public class GeoLocation {
@@ -72,8 +68,6 @@ public class GeoLocation {
         return new GeoLocation(this.latitude, this.longitude, this.elevation);
     }
 
-
-    // ******************** Misc **********************************************
     @Override public boolean equals(final Object o) {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }

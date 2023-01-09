@@ -1,5 +1,6 @@
 package eu.hansolo.framer;
 
+
 public enum SensorFormat {
     MEDIUM_FORMAT("Medium Format", "medium_format", 53.7, 40.2, 0.64),
     FULL_FORMAT("Full Format", "full_format", 36, 23.9, 1.0),

@@ -16,6 +16,7 @@ public class Trapezoid {
     private double y4;
 
 
+    // ******************** Constructors **************************************
     public Trapezoid() {
         this(0, 0, 0, 0, 0, 0, 0, 0);
     }
@@ -34,6 +35,7 @@ public class Trapezoid {
     }
 
 
+    // ******************** Methods *******************************************
     public double getX1() {
         return x1;
     }

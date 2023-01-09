@@ -7,6 +7,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,15 @@ public class FramerController {
     @Get("/calc{?latitude1,longitude1,latitude2,longitude2,focal_length,aperture,sensor_format,orientation}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
-    public HttpResponse<?> calcFoV(@Nullable final Double latitude1, @Nullable final Double longitude1, @Nullable final Double latitude2, @Nullable final Double longitude2, @Nullable final Integer focal_length, @Nullable final Double aperture, @Nullable final String sensor_format, @Nullable final String orientation, final HttpRequest request) {
+    public HttpResponse<?> calcFoV(@Parameter(description="The latitude coordinate of the camera location") @Nullable final Double latitude1,
+                                   @Parameter(description="The longitude coordinate of the camera location") @Nullable final Double longitude1,
+                                   @Parameter(description="The latitude coordinate of the subject location") @Nullable final Double latitude2,
+                                   @Parameter(description="The longitude coordinate of the subject location") @Nullable final Double longitude2,
+                                   @Parameter(description="The focal length of the used lens (8 - 2400 [mm])") @Nullable final Integer focal_length,
+                                   @Parameter(description="The aperture of the used lens (0.7 - 99.0 [f-stop]") @Nullable final Double aperture,
+                                   @Parameter(description="The sensor format of your camera (medium_format, full_format, aps_h, aps_c, aps_c_canon, micro_4_3)") @Nullable final String sensor_format,
+                                   @Parameter(description="The orientation (landscape, portrait)") @Nullable final String orientation,
+                                   final HttpRequest request) {
         final double lat1         = null == latitude1    ? 0   : latitude1;
         final double lon1         = null == longitude1   ? 0   : longitude1;
         final double lat2         = null == latitude2    ? 0   : latitude2;
@@ -78,7 +87,10 @@ public class FramerController {
     @Get("/tc{?focal_length,fstop,tc}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
-    public HttpResponse<?> tc(@Nullable final Integer focal_length, @Nullable final Double fstop, @Nullable final String tc, final HttpRequest request) {
+    public HttpResponse<?> tc(@Parameter(description="The focal length of the lens in mm (24, 35, 45, 50, 70, 85, 105, 200 etc.)") @Nullable final Integer focal_length,
+                              @Parameter(description="The f stop of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double fstop,
+                              @Parameter(description="The used teleconverter (tc_1_4, tc_2_0)") @Nullable final String tc,
+                              final HttpRequest request) {
         Integer       focalLength   = (null == focal_length || focal_length < 8 || focal_length > 2400) ? 50                   : focal_length;
         FStop         fStop         = (null == fstop)                                                   ? FStop.F_2_8          : FStop.fromNumber(fstop);
         TeleConverter teleConverter = (null == tc)                                                      ? TeleConverter.TC_1_4 : TeleConverter.fromText(tc);

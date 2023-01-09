@@ -2,13 +2,7 @@ package eu.hansolo.framer;
 
 import java.util.List;
 
-import static eu.hansolo.toolbox.Constants.COLON;
-import static eu.hansolo.toolbox.Constants.COMMA;
-import static eu.hansolo.toolbox.Constants.CURLY_BRACKET_CLOSE;
-import static eu.hansolo.toolbox.Constants.CURLY_BRACKET_OPEN;
-import static eu.hansolo.toolbox.Constants.QUOTES;
-import static eu.hansolo.toolbox.Constants.SQUARE_BRACKET_CLOSE;
-import static eu.hansolo.toolbox.Constants.SQUARE_BRACKET_OPEN;
+import static eu.hansolo.toolbox.Constants.*;
 
 
 public class Triangle {
@@ -20,6 +14,7 @@ public class Triangle {
     private double y3;
 
 
+    // ******************** Constructors **************************************
     public Triangle() {
         this(0, 0, 0, 0, 0, 0);
     }
@@ -36,6 +31,7 @@ public class Triangle {
     }
 
 
+    // ******************** Methods *******************************************
     public double getX1() {
         return x1;
     }
