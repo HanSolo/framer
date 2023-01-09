@@ -26,11 +26,11 @@ public class Helper {
         }
     }
 
-    public static final double calcDistanceInMeters(final GeoLocation location1, final GeoLocation location2) {
-        return calcDistanceInMeters(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
-    }
     public static final double calcDistanceInKilometers(final GeoLocation location1, final GeoLocation location2) {
         return calcDistanceInMeters(location1, location2) / 1000.0;
+    }
+    public static final double calcDistanceInMeters(final GeoLocation location1, final GeoLocation location2) {
+        return calcDistanceInMeters(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
     }
     public static final double calcDistanceInMeters(final double latitude1, final double longitude1, final double latitude2, final double longitude2) {
         final double lat1Radians     = Math.toRadians(latitude1);
@@ -50,42 +50,39 @@ public class Helper {
         return calcDistanceInMetersMorePrecise(location1.getLatitude(), location1.getLongitude(), location2.getLatitude(), location2.getLongitude());
     }
     public static double calcDistanceInMetersMorePrecise(double latitude1, double longitude1, double latitude2, double longitude2) {
-        final double PI_FACTOR = Math.PI / 180.0;
-        final int MAXITERS = 20;
-        // Convert lat/long to radians
-        latitude1 *= PI_FACTOR;
-        latitude2 *= PI_FACTOR;
-        longitude1 *= PI_FACTOR;
-        longitude2 *= PI_FACTOR;
+        final int    maxIterations      = 20;
 
-        double a                  = Constants.WGS84_a; // WGS84 major axis
-        double b                  = Constants.WGS84_b; // WGS84 semi-major axis
-        double f                  = (a - b) / a;
-        double aSqMinusBSqOverBSq = (a * a - b * b) / (b * b);
+        final double lat1               = Math.toRadians(latitude1);
+        final double lat2               = Math.toRadians(latitude2);
+        final double lon1               = Math.toRadians(longitude1);
+        final double lon2               = Math.toRadians(longitude2);
 
-        double L  = longitude2 - longitude1;
-        double A  = 0.0;
-        double U1 = Math.atan((1.0 - f) * Math.tan(latitude1));
-        double U2 = Math.atan((1.0 - f) * Math.tan(latitude2));
+        final double f                  = (Constants.WGS84_a - Constants.WGS84_b) / Constants.WGS84_a;
+        final double aSqMinusBSqOverBSq = (Constants.WGS84_a * Constants.WGS84_a - Constants.WGS84_b * Constants.WGS84_b) / (Constants.WGS84_b * Constants.WGS84_b);
 
-        double cosU1      = Math.cos(U1);
-        double cosU2      = Math.cos(U2);
-        double sinU1      = Math.sin(U1);
-        double sinU2      = Math.sin(U2);
-        double cosU1cosU2 = cosU1 * cosU2;
-        double sinU1sinU2 = sinU1 * sinU2;
+        final double L                  = lon2 - lon1;
+        final double U1                 = Math.atan((1.0 - f) * Math.tan(lat1));
+        final double U2                 = Math.atan((1.0 - f) * Math.tan(lat2));
 
-        double sigma      = 0.0;
-        double deltaSigma = 0.0;
-        double cosSqAlpha = 0.0;
-        double cos2SM     = 0.0;
-        double cosSigma   = 0.0;
-        double sinSigma   = 0.0;
-        double cosLambda  = 0.0;
-        double sinLambda  = 0.0;
+        final double cosU1              = Math.cos(U1);
+        final double cosU2              = Math.cos(U2);
+        final double sinU1              = Math.sin(U1);
+        final double sinU2              = Math.sin(U2);
+        final double cosU1cosU2         = cosU1 * cosU2;
+        final double sinU1sinU2         = sinU1 * sinU2;
 
-        double lambda = L;
-        for (int iter = 0; iter < MAXITERS; iter++) {
+        double A                        = 0.0;
+        double sigma                    = 0.0;
+        double deltaSigma               = 0.0;
+        double cosSqAlpha               = 0.0;
+        double cos2SM                   = 0.0;
+        double cosSigma                 = 0.0;
+        double sinSigma                 = 0.0;
+        double cosLambda                = 0.0;
+        double sinLambda                = 0.0;
+        double lambda                   = L;
+
+        for (int iter = 0; iter < maxIterations; iter++) {
             final double lambdaOrig = lambda;
             cosLambda = Math.cos(lambda);
             sinLambda = Math.sin(lambda);
@@ -111,12 +108,10 @@ public class Helper {
             lambda     = L + (1.0 - C) * f * sinAlpha * (sigma + C * sinSigma * (cos2SM + C * cosSigma * (-1.0 + 2.0 * cos2SM * cos2SM)));
 
             final double delta = (lambda - lambdaOrig) / lambda;
-            if (Math.abs(delta) < 1.0e-12) {
-                break;
-            }
+            if (Math.abs(delta) < 1.0e-12) { break; }
         }
 
-        double distance = (b * A * (sigma - deltaSigma));
+        double distance = (Constants.WGS84_b * A * (sigma - deltaSigma));
         return distance;
     }
 
@@ -141,14 +136,12 @@ public class Helper {
         return bearing;
     }
 
-    public static final String getCardinalDirectionFromBearing(final double bearing) {
+    public static final CardinalDirection getCardinalDirectionFromBearing(final double bearing) {
         final double brng = bearing % 360.0;
         for (CardinalDirection cardinalDirection : CardinalDirection.values()) {
-            if (Double.compare(brng, cardinalDirection.from) >= 0 && Double.compare(brng, cardinalDirection.to) < 0) {
-                return cardinalDirection.uiString;
-            }
+            if (Double.compare(brng, cardinalDirection.from) >= 0 && Double.compare(brng, cardinalDirection.to) < 0) { return cardinalDirection; }
         }
-        return "";
+        return CardinalDirection.NOT_FOUND;
     }
 
     public static final Triangle getFoVTriangle(final Data data) {
