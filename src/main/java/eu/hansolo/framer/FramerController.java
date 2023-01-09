@@ -7,6 +7,7 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,8 @@ public class FramerController {
     @Get("/calc{?latitude1,longitude1,latitude2,longitude2,focal_length,aperture,sensor_format,orientation}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
+    @Operation(summary = "Returns a json document that contains data related to field of view and depth of field. \nYou need to pass in values for the camera location and subject location in WGS84 coordinates (latitude, longitude), \nthe focal length of your lens in millimeter (e.g. 400), \nthe aperture of your lens in f/stop (e.g. 4.5), \nthe sensor format of your camera (e.g. full_format, aps_c) and \nthe orientation of the shot (landscape or portrait).",
+               description = "The service will calculate the distance from the camera to the subject, \nthe field of view (width, height) and \nthe depth of field (area before and behind the subject etc.).\nAll distances are either in millimeter (sensor_width, sensor_height, focal_length) or in meter (distance_to_subject, hyper_focal_distance, fov_width, fov_height, dof_near_limit, dof_far_limit, dof_total).\nAll angles are given in degrees (fov_width_angle, fov_height_angle)")
     public HttpResponse<?> calcFoV(@Parameter(description="The latitude coordinate of the camera location") @Nullable final Double latitude1,
                                    @Parameter(description="The longitude coordinate of the camera location") @Nullable final Double longitude1,
                                    @Parameter(description="The latitude coordinate of the subject location") @Nullable final Double latitude2,
@@ -87,6 +90,7 @@ public class FramerController {
     @Get("/tc{?focal_length,fstop,tc}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
+    @Operation(summary = "Converts the given focal length and f/stop by the given teleconverter")
     public HttpResponse<?> tc(@Parameter(description="The focal length of the lens in mm (24, 35, 45, 50, 70, 85, 105, 200 etc.)") @Nullable final Integer focal_length,
                               @Parameter(description="The f stop of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double fstop,
                               @Parameter(description="The used teleconverter (tc_1_4, tc_2_0)") @Nullable final String tc,

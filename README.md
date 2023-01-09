@@ -2,7 +2,7 @@
 
 A little service to calculate data related to field of view and depth of field for photography things.
 
-Returns a json format that contains data related to field of view and depth of field.
+Returns a json document that contains data related to field of view and depth of field.
 All distances are either in millimeter (sensor_width, sensor_height, focal_length) or in meter (distance_to_subject, hyper_focal_distance, fov_width, fov_height, dof_near_limit, dof_far_limit, dof_total)
 All angles are given in degrees (fov_width_angle, fov_height_angle)
 
