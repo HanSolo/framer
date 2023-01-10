@@ -111,7 +111,7 @@ public class FramerController {
 
         final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
-                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(QUOTES).append(fstop.apiString).append(QUOTES).append(COMMA)
+                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(fstop.aperture).append(COMMA)
                                               .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(QUOTES).append(teleConverter.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("converted_focal_length").append(QUOTES).append(COLON).append(convertedFocalLength).append(COMMA)
                                               .append(QUOTES).append("converted_aperture").append(QUOTES).append(COLON).append(convertedFStop)
