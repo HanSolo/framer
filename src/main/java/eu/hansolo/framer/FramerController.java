@@ -12,6 +12,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static io.micronaut.http.HttpHeaders.CACHE_CONTROL;
 import static eu.hansolo.toolbox.Constants.*;
 
@@ -39,7 +43,7 @@ public class FramerController {
      * @return A json object that contains data related to field of view and depth of field. In addition it contains two geometries (triangle of fov and trapezoid of dof)
      */
     @Version("1")
-    @Get("/calc{?latitude1,longitude1,latitude2,longitude2,focal_length,aperture,sensor_format,orientation}")
+    @Get("/calc_fov{?latitude1,longitude1,latitude2,longitude2,focal_length,aperture,sensor_format,orientation}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
     @Operation(summary = "Returns a json document that contains data related to field of view and depth of field. \n\nYou need to pass in values for the camera location and subject location in WGS84 coordinates (latitude, longitude), \n\nthe focal length of your lens in millimeter (e.g. 400), \n\nthe aperture of your lens in f/stop (e.g. 4.5), \n\nthe sensor format of your camera (e.g. full_format, aps_c) and \n\nthe orientation of the shot (landscape or portrait).",
@@ -87,33 +91,78 @@ public class FramerController {
      * @return A JSON document that contains the given focal length, f/stop and teleconverter plus the converted focal length and f/stop
      */
     @Version("1")
-    @Get("/tc{?focal_length,fstop,tc}")
+    @Get("/calc_tc{?focal_length,fstop,tc}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
     @Operation(summary = "Converts the given focal length and f/stop by the given teleconverter")
-    public HttpResponse<?> tc(@Parameter(description="The focal length of the lens in mm (24, 35, 45, 50, 70, 85, 105, 200 etc.)") @Nullable final Integer focal_length,
-                              @Parameter(description="The f stop of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double fstop,
-                              @Parameter(description="The used teleconverter (tc_1_4, tc_2_0)") @Nullable final String tc,
-                              final HttpRequest request) {
+    public HttpResponse<?> calcTc(@Parameter(description="The focal length of the lens in mm (24, 35, 45, 50, 70, 85, 105, 200 etc.)") @Nullable final Integer focal_length,
+                                  @Parameter(description="The f stop of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double fstop,
+                                  @Parameter(description="The used teleconverter (tc_1_4, tc_2_0)") @Nullable final String tc,
+                                  final HttpRequest request) {
         Integer       focalLength   = (null == focal_length || focal_length < 8 || focal_length > 2400) ? 50                   : focal_length;
-        FStop         fStop         = (null == fstop)                                                   ? FStop.F_2_8          : FStop.fromNumber(fstop);
+        Aperture      aperture      = (null == fstop) ? Aperture.F_2_8 : Aperture.fromNumber(fstop);
         TeleConverter teleConverter = (null == tc)                                                      ? TeleConverter.TC_1_4 : TeleConverter.fromText(tc);
 
-        if (FStop.NOT_FOUND         == fStop)         { fStop         = FStop.F_2_8; }
+        if (Aperture.NOT_FOUND == aperture)         { aperture = Aperture.F_2_8; }
         if (TeleConverter.NOT_FOUND == teleConverter) { teleConverter = TeleConverter.TC_1_4; }
 
         Integer convertedFocalLength = (int) (teleConverter.factor * focalLength);
-        double  convertedFStop       = TeleConverter.TC_1_4 == teleConverter ? fStop.fstop_tc_1_4 : fStop.fstop_tc_2_0;
+        double  convertedFStop       = TeleConverter.TC_1_4 == teleConverter ? aperture.aperture_tc_1_4 : aperture.aperture_tc_2_0;
 
         final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
-                                              .append(QUOTES).append("f_stop").append(QUOTES).append(COLON).append(QUOTES).append(fStop.apiString).append(QUOTES).append(COMMA)
+                                              .append(QUOTES).append("f_stop").append(QUOTES).append(COLON).append(QUOTES).append(aperture.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(QUOTES).append(teleConverter.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
                                               .append(QUOTES).append("converted_focal_length").append(QUOTES).append(COLON).append(convertedFocalLength).append(COMMA)
                                               .append(QUOTES).append("converted_f_stop").append(QUOTES).append(COLON).append(convertedFStop)
                                               .append(CURLY_BRACKET_CLOSE)
                                               .toString();
+        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+    /**
+     * Returns a json document that contains a list of common apertures used in photography in steps of 1/3
+     * @return a json document that contains a list of common apertures used in photography in steps of 1/3
+     */
+    @Version("1")
+    @Get("/apertures")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Returns a list of common apertures used in photography in steps of 1/3")
+    public HttpResponse<?> getApertures(final HttpRequest request) {
+        final List<Aperture> apertures = Arrays.stream(Aperture.values()).toList();
+        final String msg = new StringBuilder().append(apertures.stream().map(aperture -> aperture.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+    /**
+     * Returns a json document that contains a list of common sensors used in photography
+     * @return a json document that contains a list of common sensors used in photography
+     */
+    @Version("1")
+    @Get("/sensors")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Returns a list of common sensors used in photography")
+    public HttpResponse<?> getSensors(final HttpRequest request) {
+        final List<SensorFormat> sensorFormats = Arrays.stream(SensorFormat.values()).toList();
+        final String msg = new StringBuilder().append(sensorFormats.stream().map(sensorFormat -> sensorFormat.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+    /**
+     * Returns a json document that contains a list of common teleconverters used in photography
+     * @return a json document that contains a list of common teleconverters used in photography
+     */
+    @Version("1")
+    @Get("/teleconverters")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Returns a list of common teleconverters used in photography")
+    public HttpResponse<?> getTeleConverters(final HttpRequest request) {
+        final List<TeleConverter> teleConverters = Arrays.stream(TeleConverter.values()).toList();
+        final String msg = new StringBuilder().append(teleConverters.stream().map(teleConverter -> teleConverter.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
