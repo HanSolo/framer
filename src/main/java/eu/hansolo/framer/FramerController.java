@@ -115,7 +115,7 @@ public class FramerController {
                                               .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(QUOTES).append(teleConverter.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
                                               .append(QUOTES).append("converted_focal_length").append(QUOTES).append(COLON).append(convertedFocalLength).append(COMMA)
-                                              .append(QUOTES).append("converted_f_stop").append(QUOTES).append(COLON).append(convertedFStop)
+                                              .append(QUOTES).append("converted_aperture").append(QUOTES).append(COLON).append(convertedFStop)
                                               .append(CURLY_BRACKET_CLOSE)
                                               .toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
