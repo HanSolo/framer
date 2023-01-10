@@ -6,7 +6,7 @@ micronaut:
     port: 8081
     cors:
       enabled: true
-      port: 443
+      port: 8081
       netty:
         worker:
           event-loop-group: other
