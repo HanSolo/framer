@@ -10,7 +10,6 @@ public class DataTest {
     @Test
     void dataTest() {
         //System.out.println(Helper.calc(HOME, LOCATION_2, 400, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE));
-
         try {
             Data wrongData = Helper.calc(HOME, LOCATION_2, 3000, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE);
         } catch (IllegalArgumentException e) {
