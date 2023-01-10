@@ -84,34 +84,34 @@ public class FramerController {
 
 
     /**
-     * Converts the given focal length and f/stop by the given teleconverter
+     * Converts the given focal length and aperture by the given teleconverter
      * @param focal_length The focal length of the lens in mm (24, 35, 45, 50, 70, 85, 105, 200 etc.)
-     * @param fstop The f stop of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)
+     * @param aperture The aperture of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)
      * @param tc The used teleconverter (tc_1_4, tc_2_0)
-     * @return A JSON document that contains the given focal length, f/stop and teleconverter plus the converted focal length and f/stop
+     * @return A JSON document that contains the given focal length, aperture and teleconverter plus the converted focal length and aperture
      */
     @Version("1")
-    @Get("/calc_tc{?focal_length,fstop,tc}")
+    @Get("/calc_tc{?focal_length,aperture,tc}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
-    @Operation(summary = "Converts the given focal length and f/stop by the given teleconverter")
+    @Operation(summary = "Converts the given focal length and aperture by the given teleconverter")
     public HttpResponse<?> calcTc(@Parameter(description="The focal length of the lens in mm (24, 35, 45, 50, 70, 85, 105, 200 etc.)") @Nullable final Integer focal_length,
-                                  @Parameter(description="The f stop of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double fstop,
+                                  @Parameter(description="The aperture of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double aperture,
                                   @Parameter(description="The used teleconverter (tc_1_4, tc_2_0)") @Nullable final String tc,
                                   final HttpRequest request) {
         Integer       focalLength   = (null == focal_length || focal_length < 8 || focal_length > 2400) ? 50                   : focal_length;
-        Aperture      aperture      = (null == fstop) ? Aperture.F_2_8 : Aperture.fromNumber(fstop);
+        Aperture      fstop         = (null == aperture)                                                ? Aperture.F_2_8       : Aperture.fromNumber(aperture);
         TeleConverter teleConverter = (null == tc)                                                      ? TeleConverter.TC_1_4 : TeleConverter.fromText(tc);
 
-        if (Aperture.NOT_FOUND == aperture)         { aperture = Aperture.F_2_8; }
+        if (Aperture.NOT_FOUND == fstop) { fstop = Aperture.F_2_8; }
         if (TeleConverter.NOT_FOUND == teleConverter) { teleConverter = TeleConverter.TC_1_4; }
 
         Integer convertedFocalLength = (int) (teleConverter.factor * focalLength);
-        double  convertedFStop       = TeleConverter.TC_1_4 == teleConverter ? aperture.aperture_tc_1_4 : aperture.aperture_tc_2_0;
+        double  convertedFStop       = TeleConverter.TC_1_4 == teleConverter ? fstop.aperture_tc_1_4 : fstop.aperture_tc_2_0;
 
         final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
-                                              .append(QUOTES).append("f_stop").append(QUOTES).append(COLON).append(QUOTES).append(aperture.apiString).append(QUOTES).append(COMMA)
+                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(QUOTES).append(fstop.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(QUOTES).append(teleConverter.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
                                               .append(QUOTES).append("converted_focal_length").append(QUOTES).append(COLON).append(convertedFocalLength).append(COMMA)
@@ -132,7 +132,7 @@ public class FramerController {
     @Operation(summary = "Returns a list of common apertures used in photography in steps of 1/3")
     public HttpResponse<?> getApertures(final HttpRequest request) {
         final List<Aperture> apertures = Arrays.stream(Aperture.values()).toList();
-        final String msg = new StringBuilder().append(apertures.stream().map(aperture -> aperture.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final String msg = new StringBuilder().append(apertures.stream().filter(aperture -> Aperture.NOT_FOUND != aperture).map(aperture -> aperture.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
@@ -147,7 +147,7 @@ public class FramerController {
     @Operation(summary = "Returns a list of common sensors used in photography")
     public HttpResponse<?> getSensors(final HttpRequest request) {
         final List<SensorFormat> sensorFormats = Arrays.stream(SensorFormat.values()).toList();
-        final String msg = new StringBuilder().append(sensorFormats.stream().map(sensorFormat -> sensorFormat.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final String msg = new StringBuilder().append(sensorFormats.stream().filter(sensorFormat -> SensorFormat.NOT_FOUND != sensorFormat).map(sensorFormat -> sensorFormat.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
@@ -162,7 +162,7 @@ public class FramerController {
     @Operation(summary = "Returns a list of common teleconverters used in photography")
     public HttpResponse<?> getTeleConverters(final HttpRequest request) {
         final List<TeleConverter> teleConverters = Arrays.stream(TeleConverter.values()).toList();
-        final String msg = new StringBuilder().append(teleConverters.stream().map(teleConverter -> teleConverter.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final String msg = new StringBuilder().append(teleConverters.stream().filter(teleConverter -> TeleConverter.NOT_FOUND != teleConverter).map(teleConverter -> teleConverter.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
