@@ -8,4 +8,5 @@ COPY build/libs/framer-*-all.jar /app/framer.jar
 
 USER javauser
 EXPOSE 443
+EXPOSE 8081
 CMD ["java", "-Xmx256m", "-jar", "framer.jar"]
