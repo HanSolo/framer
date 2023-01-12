@@ -1,5 +1,9 @@
 package eu.hansolo.framer;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+
 public class Helper {
 
     public static final int clamp(final int min, final int max, final int value) {
@@ -29,6 +33,13 @@ public class Helper {
         } else {
             return longitude;
         }
+    }
+
+    public  static final double round(final double value, final int places) {
+        if (places < 0) throw new IllegalArgumentException("Number of places cannot be smaller than 0");
+        BigDecimal bigDecimal = new BigDecimal(Double.toString(value));
+        bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);
+        return bigDecimal.doubleValue();
     }
 
     public static final double calcDistanceInKilometers(final GeoLocation location1, final GeoLocation location2) {
@@ -149,30 +160,30 @@ public class Helper {
         return CardinalDirection.NOT_FOUND;
     }
 
-    public static final Triangle getFoVTriangle(final Data data) {
-        double[] trianglePoints = calcTrianglePoints(data);
+    public static final Triangle getFoVTriangle(final FovData fovData) {
+        double[] trianglePoints = calcTrianglePoints(fovData);
         return new Triangle(trianglePoints);
     }
-    public static final double[] calcTrianglePoints(final Data data) {
-        final double halfFovWidthAngle = data.fovWidthAngle / 2.0;
-        double[] p2 = calcCoordinates(data.cameraLocation, data.radius, -halfFovWidthAngle);
-        double[] p3 = calcCoordinates(data.cameraLocation, data.radius, halfFovWidthAngle);
-        return new double[] { data.cameraLocation.getLatitude(), data.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
+    public static final double[] calcTrianglePoints(final FovData fovData) {
+        final double halfFovWidthAngle = fovData.fovWidthAngle / 2.0;
+        double[] p2 = calcCoordinates(fovData.cameraLocation, fovData.radius, -halfFovWidthAngle);
+        double[] p3 = calcCoordinates(fovData.cameraLocation, fovData.radius, halfFovWidthAngle);
+        return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
     }
 
-    public static final Trapezoid getDofTrapezoid(final Data data) {
-        double[] trapezoidPoints = calcTrapezoidPoints(data);
+    public static final Trapezoid getDofTrapezoid(final FovData fovData) {
+        double[] trapezoidPoints = calcTrapezoidPoints(fovData);
         return new Trapezoid(trapezoidPoints);
     }
-    public static final double[] calcTrapezoidPoints(final Data data) {
-        final double halfFovWidthAngle = data.fovWidthAngle / 2.0;
-        final double radius1           = data.dofNearLimit / Math.cos(halfFovWidthAngle);
-        final double radius2           = data.dofFarLimit / Math.cos(halfFovWidthAngle);
+    public static final double[] calcTrapezoidPoints(final FovData fovData) {
+        final double halfFovWidthAngle = fovData.fovWidthAngle / 2.0;
+        final double radius1           = fovData.dofNearLimit / Math.cos(halfFovWidthAngle);
+        final double radius2           = fovData.dofFarLimit / Math.cos(halfFovWidthAngle);
 
-        final double p1[] = calcCoordinates(data.cameraLocation, radius1, -halfFovWidthAngle);
-        final double p2[] = calcCoordinates(data.cameraLocation, radius2, -halfFovWidthAngle);
-        final double p3[] = calcCoordinates(data.cameraLocation, radius2, halfFovWidthAngle);
-        final double p4[] = calcCoordinates(data.cameraLocation, radius1, halfFovWidthAngle);
+        final double p1[] = calcCoordinates(fovData.cameraLocation, radius1, -halfFovWidthAngle);
+        final double p2[] = calcCoordinates(fovData.cameraLocation, radius2, -halfFovWidthAngle);
+        final double p3[] = calcCoordinates(fovData.cameraLocation, radius2, halfFovWidthAngle);
+        final double p4[] = calcCoordinates(fovData.cameraLocation, radius1, halfFovWidthAngle);
 
         return new double[] { p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1] };
     }
@@ -189,9 +200,9 @@ public class Helper {
         return new double[] { Math.toDegrees(lat2), Math.toDegrees(lon2) };
     }
 
-    public static final Data calc(final GeoLocation cameraLocation, final GeoLocation subjectLocation,
-                                  final int focalLength, final double aperture,
-                                  final SensorFormat sensorFormat, final Orientation orientation) {
+    public static final FovData calc(final GeoLocation cameraLocation, final GeoLocation subjectLocation,
+                                     final int focalLength, final double aperture,
+                                     final SensorFormat sensorFormat, final Orientation orientation) {
 
         final double distance = cameraLocation.getDistanceTo(subjectLocation);
 
@@ -222,6 +233,6 @@ public class Helper {
         final double maxSubjectHeight   = halfFovHeight < Constants.CAMERA_HEIGHT ? fovHeight : Constants.CAMERA_HEIGHT + halfFovHeight;
         final double radius             = Math.sqrt((halfFovWidth * halfFovWidth) + (distance * distance));
 
-        return new Data(cameraLocation, subjectLocation, focalLengthInMeter, aperture, sensorFormat, orientation, infinite, hyperFocal, nearLimit, farLimit, frontPercent, behindPercent, total, diagonalAngle, diagonalLength, fovWidth, fovWidthAngle, fovHeight, fovHeightAngle, maxSubjectHeight, radius);
+        return new FovData(cameraLocation, subjectLocation, focalLengthInMeter, aperture, sensorFormat, orientation, infinite, hyperFocal, nearLimit, farLimit, frontPercent, behindPercent, total, diagonalAngle, diagonalLength, fovWidth, fovWidthAngle, fovHeight, fovHeightAngle, maxSubjectHeight, radius);
     }
 }

@@ -72,11 +72,11 @@ public class FramerController {
         final GeoLocation cameraLocation  = new GeoLocation(lat1, lon1);
         final GeoLocation subjectLocation = new GeoLocation(lat2, lon2);
         try {
-            final Data         data     = Helper.calc(cameraLocation, subjectLocation, focalLength, apert, sensorFormat, orient);
-            final HttpResponse response = HttpResponse.ok(data.toString()).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+            final FovData      fovData  = Helper.calc(cameraLocation, subjectLocation, focalLength, apert, sensorFormat, orient);
+            final HttpResponse response = HttpResponse.ok(fovData.toString()).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
             return response;
         } catch (Exception e) {
-            final String msg = Data.getErrorMessage(e.getMessage());
+            final String msg = FovData.getErrorMessage(e.getMessage());
             final HttpResponse response = HttpResponse.badRequest(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.BAD_REQUEST);
             return response;
         }
@@ -99,22 +99,22 @@ public class FramerController {
                                   @Parameter(description="The aperture of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double aperture,
                                   @Parameter(description="The used teleconverter (tc_1_4, tc_2_0)") @Nullable final String tc,
                                   final HttpRequest request) {
-        Integer       focalLength   = (null == focal_length || focal_length < 8 || focal_length > 2400) ? 50                   : focal_length;
-        Aperture      fstop         = (null == aperture)                                                ? Aperture.F_2_8       : Aperture.fromNumber(aperture);
+        int           focalLength   = (null == focal_length || focal_length < 8 || focal_length > 2400) ? 50                   : focal_length;
+        Aperture      apert         = (null == aperture)                                                ? Aperture.F_2_8       : Aperture.fromNumber(aperture);
         TeleConverter teleConverter = (null == tc)                                                      ? TeleConverter.TC_1_4 : TeleConverter.fromText(tc);
 
-        if (Aperture.NOT_FOUND == fstop) { fstop = Aperture.F_2_8; }
+        if (Aperture.NOT_FOUND == apert) { apert = Aperture.F_2_8; }
         if (TeleConverter.NOT_FOUND == teleConverter) { teleConverter = TeleConverter.TC_1_4; }
 
-        Integer convertedFocalLength = (int) (teleConverter.factor * focalLength);
-        double  convertedFStop       = TeleConverter.TC_1_4 == teleConverter ? fstop.aperture_tc_1_4 : fstop.aperture_tc_2_0;
+        int    convertedFocalLength = (int) (teleConverter.factor * focalLength);
+        double convertedAperture    = TeleConverter.TC_1_4 == teleConverter ? apert.aperture_tc_1_4 : apert.aperture_tc_2_0;
 
         final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
-                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(fstop.aperture).append(COMMA)
+                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(Helper.round(apert.aperture, 1)).append(COMMA)
                                               .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(QUOTES).append(teleConverter.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("converted_focal_length").append(QUOTES).append(COLON).append(convertedFocalLength).append(COMMA)
-                                              .append(QUOTES).append("converted_aperture").append(QUOTES).append(COLON).append(convertedFStop)
+                                              .append(QUOTES).append("converted_aperture").append(QUOTES).append(COLON).append(Helper.round(convertedAperture, 1))
                                               .append(CURLY_BRACKET_CLOSE)
                                               .toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);

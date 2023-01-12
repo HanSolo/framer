@@ -3,7 +3,7 @@ package eu.hansolo.framer;
 import static eu.hansolo.toolbox.Constants.*;
 
 
-public class Data {
+public class FovData {
     public final GeoLocation  cameraLocation;
     public final GeoLocation  subjectLocation;
     public final double       focalLength;
@@ -32,16 +32,16 @@ public class Data {
 
 
     // ******************** Constructors **************************************
-    public Data(final GeoLocation cameraLocation, final GeoLocation subjectLocation,
-                final double focalLength, final double aperture,
-                final SensorFormat sensorFormat,
-                final Orientation orientation,
-                final boolean infinite, final double hyperFocal, final double dofNearLimit, final double dofFarLimit,
-                final double dofFrontPercent, final double dofBehindPercent, final double dofTotal,
-                final double fovDiagonalAngle, final double fovDiagonalLength,
-                final double fovWidth, final double fovWidthAngle,
-                final double fovHeight, final double fovHeightAngle,
-                final double maxSubjectHeight, final double radius) {
+    public FovData(final GeoLocation cameraLocation, final GeoLocation subjectLocation,
+                   final double focalLength, final double aperture,
+                   final SensorFormat sensorFormat,
+                   final Orientation orientation,
+                   final boolean infinite, final double hyperFocal, final double dofNearLimit, final double dofFarLimit,
+                   final double dofFrontPercent, final double dofBehindPercent, final double dofTotal,
+                   final double fovDiagonalAngle, final double fovDiagonalLength,
+                   final double fovWidth, final double fovWidthAngle,
+                   final double fovHeight, final double fovHeightAngle,
+                   final double maxSubjectHeight, final double radius) {
         this.cameraLocation             = cameraLocation;
         this.subjectLocation            = subjectLocation;
         this.focalLength                = focalLength;
@@ -130,8 +130,8 @@ public class Data {
     }
 
     @Override public String toString() {
-        final Triangle  fovTriangle  = Helper.getFoVTriangle(Data.this);
-        final Trapezoid dofTrapezoid = Helper.getDofTrapezoid(Data.this);
+        final Triangle  fovTriangle  = Helper.getFoVTriangle(FovData.this);
+        final Trapezoid dofTrapezoid = Helper.getDofTrapezoid(FovData.this);
 
         final String res = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("camera_latitude").append(QUOTES).append(COLON).append(cameraLocation.getLatitude()).append(COMMA)
@@ -142,7 +142,7 @@ public class Data {
                                               .append(QUOTES).append("sensor_width").append(QUOTES).append(COLON).append(sensorFormat.width).append(COMMA)
                                               .append(QUOTES).append("sensor_height").append(QUOTES).append(COLON).append(sensorFormat.height).append(COMMA)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append((focalLength * 1000.0)).append(COMMA)
-                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(aperture).append(COMMA)
+                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(Helper.round(aperture, 1)).append(COMMA)
                                               .append(QUOTES).append("orientation").append(QUOTES).append(COLON).append(QUOTES).append(orientation.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("distance_to_subject").append(QUOTES).append(COLON).append(distance).append(COMMA)
                                               .append(QUOTES).append("hyper_focal_distance").append(QUOTES).append(COLON).append(hyperFocal).append(COMMA)
@@ -163,7 +163,6 @@ public class Data {
                                               .append(QUOTES).append("msg").append(QUOTES).append(COLON).append(QUOTES).append(QUOTES)
                                               .append(CURLY_BRACKET_CLOSE)
                                               .toString();
-
         return res;
     }
 }

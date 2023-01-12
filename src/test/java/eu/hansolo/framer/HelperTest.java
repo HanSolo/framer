@@ -26,6 +26,12 @@ public class HelperTest {
 
         System.out.println(Helper.calcDistanceInMeters(HOME, NEW_YORK) / 1000);
         System.out.println(Helper.calcDistanceInMetersMorePrecise(HOME, NEW_YORK) / 1000);
+    }
 
+    @Test
+    void testRound() {
+        double aperture    = 1.3999999999999;
+        String roundedText = new StringBuilder().append(Helper.round(aperture, 1)).toString();
+        assert roundedText.equals("1.4");
     }
 }
