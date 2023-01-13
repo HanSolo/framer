@@ -9,6 +9,7 @@ public class FovData {
     public final double       focalLength;
     public final double       aperture;
     public final double       distance;
+    public final double       bearing;
     public final SensorFormat sensorFormat;
     public final Orientation  orientation;
     public final boolean      infinite;
@@ -47,6 +48,7 @@ public class FovData {
         this.focalLength                = focalLength;
         this.aperture                   = aperture;
         this.distance                   = cameraLocation.getDistanceTo(subjectLocation);
+        this.bearing                    = Helper.calcDistanceInMeters(cameraLocation, subjectLocation);
         this.sensorFormat               = sensorFormat;
         this.orientation                = orientation;
         this.infinite                   = infinite;
@@ -84,6 +86,7 @@ public class FovData {
                                   .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("orientation").append(QUOTES).append(COLON).append(QUOTES).append("").append(QUOTES).append(COMMA)
                                   .append(QUOTES).append("distance_to_subject").append(QUOTES).append(COLON).append(0).append(COMMA)
+                                  .append(QUOTES).append("bearing").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("hyper_focal_distance").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("fov_width").append(QUOTES).append(COLON).append(0).append(COMMA)
                                   .append(QUOTES).append("fov_height").append(QUOTES).append(COLON).append(0).append(COMMA)
@@ -145,6 +148,7 @@ public class FovData {
                                               .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(Helper.round(aperture, 1)).append(COMMA)
                                               .append(QUOTES).append("orientation").append(QUOTES).append(COLON).append(QUOTES).append(orientation.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("distance_to_subject").append(QUOTES).append(COLON).append(distance).append(COMMA)
+                                              .append(QUOTES).append("bearing").append(QUOTES).append(COLON).append(bearing).append(COMMA)
                                               .append(QUOTES).append("hyper_focal_distance").append(QUOTES).append(COLON).append(hyperFocal).append(COMMA)
                                               .append(QUOTES).append("fov_width").append(QUOTES).append(COLON).append(fovWidth).append(COMMA)
                                               .append(QUOTES).append("fov_height").append(QUOTES).append(COLON).append(fovHeight).append(COMMA)
