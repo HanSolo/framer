@@ -48,7 +48,7 @@ public class FovData {
         this.focalLength                = focalLength;
         this.aperture                   = aperture;
         this.distance                   = cameraLocation.getDistanceTo(subjectLocation);
-        this.bearing                    = Helper.calcDistanceInMeters(cameraLocation, subjectLocation);
+        this.bearing                    = Helper.calcBearingInDegreeBetweenTwoPoints(cameraLocation, subjectLocation);
         this.sensorFormat               = sensorFormat;
         this.orientation                = orientation;
         this.infinite                   = infinite;

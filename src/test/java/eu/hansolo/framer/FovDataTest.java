@@ -15,5 +15,17 @@ public class FovDataTest {
         } catch (IllegalArgumentException e) {
             assert e.getMessage().equals("Error, focal length must be between 8mm and 2400mm");
         }
+
+        GeoLocation location1  = new GeoLocation(51.91169178378304, 7.633822331799516);
+        GeoLocation location2 = new GeoLocation(51.91152234041318, 7.6328298445623);
+
+        double deltaLat = Math.toRadians(location2.getLatitude()) - Math.toRadians(location1.getLatitude());
+        double y        = Math.sin(deltaLat) * Math.cos(Math.toRadians(location2.getLongitude()));
+        double x        = Math.cos(Math.toRadians(location1.getLongitude())) * Math.sin(Math.toRadians(location2.getLongitude())) - Math.sin(Math.toRadians(location1.getLongitude())) * Math.cos(Math.toRadians(location2.getLongitude())) * Math.cos(deltaLat);
+        double theta    = Math.atan2(y, x);
+        double bearing  = (theta * 180 / Math.PI + 360) % 360;
+
+        System.out.println(bearing);
+        System.out.println(Helper.calcBearingInDegree(location2, location1));
     }
 }
