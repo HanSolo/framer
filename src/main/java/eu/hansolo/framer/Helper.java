@@ -58,7 +58,6 @@ public class Helper {
         final double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         final double distance = Constants.WGS84_a * c;
-
         return distance;
     }
 
@@ -194,7 +193,7 @@ public class Helper {
         double radius = distance / Constants.WGS84_a;
 
         double lat2 = Math.asin(Math.sin(lat1) * Math.cos(radius) + Math.cos(lat1) * Math.sin(radius) * Math.cos(bearing));
-        double lon2 =lon1 + Math.atan2(Math.sin(bearing) * Math.sin(radius) * Math.cos(lat1), Math.cos(radius) - Math.sin(lat1) * Math.sin(lat2));
+        double lon2 = lon1 + Math.atan2(Math.sin(bearing) * Math.sin(radius) * Math.cos(lat1), Math.cos(radius) - Math.sin(lat1) * Math.sin(lat2));
         lon2 = (lon2 + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
 
         return new double[] { Math.toDegrees(lat2), Math.toDegrees(lon2) };
@@ -228,8 +227,8 @@ public class Helper {
         final double fovHeight          = Orientation.LANDSCAPE == orientation ? Math.sin(phi) * diagonalLength : Math.cos(phi) * diagonalLength;
         final double halfFovWidth       = fovWidth * 0.5;
         final double halfFovHeight      = fovHeight * 0.5;
-        final double fovWidthAngle      = 2 * Math.asin(halfFovWidth / Math.sqrt((distance * distance) + (halfFovWidth * halfFovWidth))) * 100;
-        final double fovHeightAngle     = 2 * Math.asin(halfFovHeight / Math.sqrt((distance * distance) + (halfFovHeight * halfFovHeight))) * 100;
+        final double fovWidthAngle      = 2 * Math.asin(halfFovWidth / Math.sqrt((distance * distance) + (halfFovWidth * halfFovWidth)));
+        final double fovHeightAngle     = 2 * Math.asin(halfFovHeight / Math.sqrt((distance * distance) + (halfFovHeight * halfFovHeight)));
         final double maxSubjectHeight   = halfFovHeight < Constants.CAMERA_HEIGHT ? fovHeight : Constants.CAMERA_HEIGHT + halfFovHeight;
         final double radius             = Math.sqrt((halfFovWidth * halfFovWidth) + (distance * distance));
 

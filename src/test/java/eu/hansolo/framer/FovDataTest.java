@@ -8,7 +8,7 @@ public class FovDataTest {
     private static final GeoLocation LOCATION_2 = new GeoLocation(51.911510620555674, 7.632810650837488, 65);
 
     @Test
-    void fovDataataTest() {
+    void fovDataTest() {
         //System.out.println(Helper.calc(HOME, LOCATION_2, 400, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE));
         try {
             FovData wrongFovData = Helper.calc(HOME, LOCATION_2, 3000, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE);
@@ -16,5 +16,4 @@ public class FovDataTest {
             assert e.getMessage().equals("Error, focal length must be between 8mm and 2400mm");
         }
     }
-
 }
