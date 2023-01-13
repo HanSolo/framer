@@ -159,6 +159,29 @@ public class Helper {
         return CardinalDirection.NOT_FOUND;
     }
 
+    public static final double[] rotateCoordinate(final double rotationCenterLatitude, final double rotationCenterLongitude,
+                                                  final double pointToRotateLatitude, final double pointToRotateLongitude,
+                                                  final double angleInDegree) {
+        final double lat1Rad      = Math.toRadians(rotationCenterLatitude);
+        final double lon1Rad      = Math.toRadians(rotationCenterLongitude);
+        final double angleInRad   = Math.toRadians(angleInDegree);
+        final double distance     = calcDistanceInMetersMorePrecise(rotationCenterLatitude, rotationCenterLongitude, pointToRotateLatitude, pointToRotateLongitude);
+        final double centralAngle = distance / Constants.WGS84_a;
+        final double lat2Rad      = Math.asin(Math.sin(lat1Rad) * Math.cos(centralAngle) + Math.cos(lat1Rad) * Math.sin(centralAngle) * Math.cos(angleInRad));
+        final double lon2Rad      = lon1Rad + Math.atan2(Math.sin(angleInRad) * Math.sin(centralAngle) * Math.cos(lat1Rad), Math.cos(centralAngle) - Math.sin(lat1Rad) * Math.sin(lat2Rad));
+        return new double[] { Math.toDegrees(lat2Rad), Math.toDegrees(lon2Rad) };
+    }
+
+    public static final GeoLocation rotateCoordinate(final GeoLocation rotationCenter, final GeoLocation pointToRotate, final double bearing) {
+        final double lat1         = Math.toRadians(rotationCenter.getLatitude());
+        final double lon1         = Math.toRadians(rotationCenter.getLongitude());
+        final double distance     = calcDistanceInMetersMorePrecise(rotationCenter, pointToRotate);
+        final double centralAngle = distance / Constants.WGS84_a;
+        final double lat2         = Math.asin(Math.sin(lat1) * Math.cos(centralAngle) + Math.cos(lat1) * Math.sin(centralAngle) * Math.cos(Math.toRadians(bearing)));
+        final double lon2         = lon1 + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin(centralAngle) * Math.cos(lat1), Math.cos(centralAngle) - Math.sin(lat1) * Math.sin(lat2));
+        return new GeoLocation(Math.toDegrees(lat2), Math.toDegrees(lon2));
+    }
+
     public static final Triangle getFoVTriangle(final FovData fovData) {
         double[] trianglePoints = calcTrianglePoints(fovData);
         return new Triangle(trianglePoints);
@@ -167,7 +190,11 @@ public class Helper {
         final double halfFovWidthAngle = fovData.fovWidthAngle / 2.0;
         double[] p2 = calcCoordinates(fovData.cameraLocation, fovData.radius, -halfFovWidthAngle);
         double[] p3 = calcCoordinates(fovData.cameraLocation, fovData.radius, halfFovWidthAngle);
-        return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
+
+        double[] rotatedP2 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1],fovData.bearing);
+        double[] rotatedP3 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p3[0], p3[1],fovData.bearing);
+        return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), rotatedP2[0], rotatedP2[1], rotatedP3[0], rotatedP3[1] };
+        //return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
     }
 
     public static final Trapezoid getDofTrapezoid(final FovData fovData) {
@@ -184,7 +211,13 @@ public class Helper {
         final double p3[] = calcCoordinates(fovData.cameraLocation, radius2, halfFovWidthAngle);
         final double p4[] = calcCoordinates(fovData.cameraLocation, radius1, halfFovWidthAngle);
 
-        return new double[] { p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1] };
+        double[] rotatedP1 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p1[0], p1[1],fovData.bearing);
+        double[] rotatedP2 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1],fovData.bearing);
+        double[] rotatedP3 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p3[0], p3[1],fovData.bearing);
+        double[] rotatedP4 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p4[0], p4[1],fovData.bearing);
+
+        return new double[] { rotatedP1[0], rotatedP1[1], rotatedP2[0], rotatedP2[1], rotatedP3[0], rotatedP3[1], rotatedP4[0], rotatedP4[1] };
+        //return new double[] { p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1] };
     }
 
     public static final double[] calcCoordinates(final GeoLocation start, final double distance, final double bearing) {
