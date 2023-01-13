@@ -17,8 +17,12 @@ public class FovDataTest {
         }
 
         GeoLocation location1  = new GeoLocation(51.91169178378304, 7.633822331799516);
-        GeoLocation location2 = new GeoLocation(51.91152234041318, 7.6328298445623);
+        GeoLocation location2  = new GeoLocation(51.91152234041318, 7.6328298445623);
+        double      bearing    = Helper.calcBearingInDegree(location1, location2);
 
-        System.out.println(Helper.calcBearingInDegree(location1, location2));
+        FovData  fovData            = Helper.calc(location1, location2, 400, 4.5, SensorFormat.FULL_FORMAT, Orientation.LANDSCAPE);
+        Triangle fovTriangle        = Helper.getFoVTriangle(fovData);
+        Triangle rotatedFovTriangle = Helper.rotateTriangleAroundRotationCenter(fovTriangle, location1, 360.0 - bearing);
+        System.out.println(rotatedFovTriangle);
     }
 }

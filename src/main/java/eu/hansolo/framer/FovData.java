@@ -136,6 +136,9 @@ public class FovData {
         final Triangle  fovTriangle  = Helper.getFoVTriangle(FovData.this);
         final Trapezoid dofTrapezoid = Helper.getDofTrapezoid(FovData.this);
 
+        Triangle  rotatedFovTriangle  = Helper.rotateTriangleAroundRotationCenter(fovTriangle, cameraLocation, 360.0 - bearing);
+        Trapezoid rotatedDofTrapezoid = Helper.rotateTrapezoidAroundRotationCenter(dofTrapezoid, cameraLocation, 360.0 - bearing);
+
         final String res = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("camera_latitude").append(QUOTES).append(COLON).append(cameraLocation.getLatitude()).append(COMMA)
                                               .append(QUOTES).append("camera_longitude").append(QUOTES).append(COLON).append(cameraLocation.getLongitude()).append(COMMA)
@@ -161,8 +164,8 @@ public class FovData {
                                               .append(QUOTES).append("dof_total").append(QUOTES).append(COLON).append(dofTotal).append(COMMA)
                                               .append(QUOTES).append("max_subject_height").append(QUOTES).append(COLON).append(maxSubjectHeight).append(COMMA)
                                               .append(QUOTES).append("features").append(QUOTES).append(COLON).append(SQUARE_BRACKET_OPEN)
-                                              .append(fovTriangle).append(COMMA)
-                                              .append(dofTrapezoid)
+                                              .append(rotatedFovTriangle).append(COMMA)
+                                              .append(rotatedDofTrapezoid)
                                               .append(SQUARE_BRACKET_CLOSE).append(COMMA)
                                               .append(QUOTES).append("msg").append(QUOTES).append(COLON).append(QUOTES).append(QUOTES)
                                               .append(CURLY_BRACKET_CLOSE)

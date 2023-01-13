@@ -159,27 +159,26 @@ public class Helper {
         return CardinalDirection.NOT_FOUND;
     }
 
-    public static final double[] rotateCoordinate(final double rotationCenterLatitude, final double rotationCenterLongitude,
-                                                  final double pointToRotateLatitude, final double pointToRotateLongitude,
-                                                  final double angleInDegree) {
-        final double lat1Rad      = Math.toRadians(rotationCenterLatitude);
-        final double lon1Rad      = Math.toRadians(rotationCenterLongitude);
-        final double angleInRad   = Math.toRadians(angleInDegree);
-        final double distance     = calcDistanceInMetersMorePrecise(rotationCenterLatitude, rotationCenterLongitude, pointToRotateLatitude, pointToRotateLongitude);
-        final double centralAngle = distance / Constants.WGS84_a;
-        final double lat2Rad      = Math.asin(Math.sin(lat1Rad) * Math.cos(centralAngle) + Math.cos(lat1Rad) * Math.sin(centralAngle) * Math.cos(angleInRad));
-        final double lon2Rad      = lon1Rad + Math.atan2(Math.sin(angleInRad) * Math.sin(centralAngle) * Math.cos(lat1Rad), Math.cos(centralAngle) - Math.sin(lat1Rad) * Math.sin(lat2Rad));
-        return new double[] { Math.toDegrees(lat2Rad), Math.toDegrees(lon2Rad) };
+    public static final GeoLocation rotateCoordinate(final GeoLocation rotationCenter, final GeoLocation point, final double angleDeg) {
+        final double angleRad  = Math.toRadians(angleDeg);
+        final double latitude  = rotationCenter.getLatitude() + Math.sin(angleRad) * (point.getLongitude() - rotationCenter.getLongitude()) * Math.abs(Math.cos(Math.toRadians(rotationCenter.getLatitude()))) + Math.cos(angleRad) * (point.getLatitude() - rotationCenter.getLatitude());
+        final double longitude = rotationCenter.getLongitude() + Math.cos(angleRad) * (point.getLongitude() - rotationCenter.getLongitude()) - Math.sin(angleRad) * (point.getLatitude() - rotationCenter.getLatitude()) / Math.abs(Math.cos((Math.toRadians(rotationCenter.getLatitude()))));
+        return new GeoLocation(latitude, longitude);
     }
 
-    public static final GeoLocation rotateCoordinate(final GeoLocation rotationCenter, final GeoLocation pointToRotate, final double bearing) {
-        final double lat1         = Math.toRadians(rotationCenter.getLatitude());
-        final double lon1         = Math.toRadians(rotationCenter.getLongitude());
-        final double distance     = calcDistanceInMetersMorePrecise(rotationCenter, pointToRotate);
-        final double centralAngle = distance / Constants.WGS84_a;
-        final double lat2         = Math.asin(Math.sin(lat1) * Math.cos(centralAngle) + Math.cos(lat1) * Math.sin(centralAngle) * Math.cos(Math.toRadians(bearing)));
-        final double lon2         = lon1 + Math.atan2(Math.sin(Math.toRadians(bearing)) * Math.sin(centralAngle) * Math.cos(lat1), Math.cos(centralAngle) - Math.sin(lat1) * Math.sin(lat2));
-        return new GeoLocation(Math.toDegrees(lat2), Math.toDegrees(lon2));
+    public static final Triangle rotateTriangleAroundRotationCenter(final Triangle triangle, final GeoLocation rotationCenter, final double angleDeg) {
+        final GeoLocation p1 = rotateCoordinate(rotationCenter, new GeoLocation(triangle.getX1(), triangle.getY1()), angleDeg);
+        final GeoLocation p2 = rotateCoordinate(rotationCenter, new GeoLocation(triangle.getX2(), triangle.getY2()), angleDeg);
+        final GeoLocation p3 = rotateCoordinate(rotationCenter, new GeoLocation(triangle.getX3(), triangle.getY3()), angleDeg);
+        return new Triangle(p1.getLatitude(), p1.getLongitude(), p2.getLatitude(), p2.getLongitude(), p3.getLatitude(), p3.getLongitude());
+    }
+
+    public static final Trapezoid rotateTrapezoidAroundRotationCenter(final Trapezoid trapezoid, final GeoLocation rotationCenter, final double angleDeg) {
+        final GeoLocation p1 = rotateCoordinate(rotationCenter, new GeoLocation(trapezoid.getX1(), trapezoid.getY1()), angleDeg);
+        final GeoLocation p2 = rotateCoordinate(rotationCenter, new GeoLocation(trapezoid.getX2(), trapezoid.getY2()), angleDeg);
+        final GeoLocation p3 = rotateCoordinate(rotationCenter, new GeoLocation(trapezoid.getX3(), trapezoid.getY3()), angleDeg);
+        final GeoLocation p4 = rotateCoordinate(rotationCenter, new GeoLocation(trapezoid.getX4(), trapezoid.getY4()), angleDeg);
+        return new Trapezoid(p1.getLatitude(), p1.getLongitude(), p2.getLatitude(), p2.getLongitude(), p3.getLatitude(), p3.getLongitude(), p4.getLatitude(), p4.getLongitude());
     }
 
     public static final Triangle getFoVTriangle(final FovData fovData) {
@@ -192,7 +191,7 @@ public class Helper {
         double[] p3 = calcCoordinates(fovData.cameraLocation, fovData.radius, halfFovWidthAngle);
 
         return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
-        
+
         //double[] rotatedP2 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], 360 - fovData.bearing);
         //double[] rotatedP3 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p3[0], p3[1], 360 - fovData.bearing);
         //return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), rotatedP2[0], rotatedP2[1], rotatedP3[0], rotatedP3[1] };
