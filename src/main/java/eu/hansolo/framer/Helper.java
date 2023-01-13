@@ -191,10 +191,11 @@ public class Helper {
         double[] p2 = calcCoordinates(fovData.cameraLocation, fovData.radius, -halfFovWidthAngle);
         double[] p3 = calcCoordinates(fovData.cameraLocation, fovData.radius, halfFovWidthAngle);
 
-        double[] rotatedP2 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], 360 - fovData.bearing);
-        double[] rotatedP3 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p3[0], p3[1], 360 - fovData.bearing);
-        return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), rotatedP2[0], rotatedP2[1], rotatedP3[0], rotatedP3[1] };
-        //return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
+        return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], p3[0], p3[1] };
+        
+        //double[] rotatedP2 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], 360 - fovData.bearing);
+        //double[] rotatedP3 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p3[0], p3[1], 360 - fovData.bearing);
+        //return new double[] { fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), rotatedP2[0], rotatedP2[1], rotatedP3[0], rotatedP3[1] };
     }
 
     public static final Trapezoid getDofTrapezoid(final FovData fovData) {
@@ -211,13 +212,13 @@ public class Helper {
         final double p3[] = calcCoordinates(fovData.cameraLocation, radius2, halfFovWidthAngle);
         final double p4[] = calcCoordinates(fovData.cameraLocation, radius1, halfFovWidthAngle);
 
-        double[] rotatedP1 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p1[0], p1[1], 360 - fovData.bearing);
-        double[] rotatedP2 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], 360 - fovData.bearing);
-        double[] rotatedP3 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p3[0], p3[1], 360 - fovData.bearing);
-        double[] rotatedP4 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p4[0], p4[1], 360 - fovData.bearing);
+        return new double[] { p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1] };
 
-        return new double[] { rotatedP1[0], rotatedP1[1], rotatedP2[0], rotatedP2[1], rotatedP3[0], rotatedP3[1], rotatedP4[0], rotatedP4[1] };
-        //return new double[] { p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1] };
+        //double[] rotatedP1 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p1[0], p1[1], 360 - fovData.bearing);
+        //double[] rotatedP2 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p2[0], p2[1], 360 - fovData.bearing);
+        //double[] rotatedP3 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p3[0], p3[1], 360 - fovData.bearing);
+        //double[] rotatedP4 = rotateCoordinate(fovData.cameraLocation.getLatitude(), fovData.cameraLocation.getLongitude(), p4[0], p4[1], 360 - fovData.bearing);
+        //return new double[] { rotatedP1[0], rotatedP1[1], rotatedP2[0], rotatedP2[1], rotatedP3[0], rotatedP3[1], rotatedP4[0], rotatedP4[1] };
     }
 
     public static final double[] calcCoordinates(final GeoLocation start, final double distance, final double bearing) {
