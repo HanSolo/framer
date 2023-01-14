@@ -4,8 +4,8 @@ import static eu.hansolo.toolbox.Constants.*;
 
 
 public enum TeleConverter {
-    TC_1_4("tc 1.4", "tc_1_4", 1.4),
-    TC_2_0("tc 2.0", "tc_2_0", 2.0),
+    TC_1_4("TC 1.4x", "tc_1_4", 1.4),
+    TC_2_0("TC 2.0x", "tc_2_0", 2.0),
     NOT_FOUND("", "", 1.0);
 
     public final String uiString;
