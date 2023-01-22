@@ -159,6 +159,12 @@ public class Helper {
         return CardinalDirection.NOT_FOUND;
     }
 
+    // Calculates the exposure time in seconds for the given aperture and iso
+    public static final double calcShutterSpeed(final Aperture aperture, final ISO iso) {
+        final double shutterSpeed = (100 * (aperture.aperture * aperture.aperture)) / (iso.value * Math.pow(2, -7));
+        return shutterSpeed;
+    }
+
     public static final GeoLocation rotateCoordinate(final GeoLocation rotationCenter, final GeoLocation point, final double angleDeg) {
         final double angleRad  = Math.toRadians(angleDeg);
         final double latitude  = rotationCenter.getLatitude() + Math.sin(angleRad) * (point.getLongitude() - rotationCenter.getLongitude()) * Math.abs(Math.cos(Math.toRadians(rotationCenter.getLatitude()))) + Math.cos(angleRad) * (point.getLatitude() - rotationCenter.getLatitude());
