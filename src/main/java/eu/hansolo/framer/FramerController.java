@@ -131,7 +131,22 @@ public class FramerController {
     @Operation(summary = "Returns a list of common apertures used in photography in steps of 1/3")
     public HttpResponse<?> getApertures(final HttpRequest request) {
         final List<Aperture> apertures = Arrays.stream(Aperture.values()).toList();
-        final String msg = new StringBuilder().append(apertures.stream().filter(aperture -> Aperture.NOT_FOUND != aperture).map(aperture -> aperture.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final String         msg       = new StringBuilder().append(apertures.stream().filter(aperture -> Aperture.NOT_FOUND != aperture).map(aperture -> aperture.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final HttpResponse   response  = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+    /**
+     * Returns a json document that contains a list of common iso values
+     * @return a json document that contains a list of common iso values
+     */
+    @Version("1")
+    @Get("/isos")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Returns a list of common iso values used in photography")
+    public HttpResponse<?> getIsos(final HttpRequest request) {
+        final List<ISO>    isos     = Arrays.stream(ISO.values()).toList();
+        final String       msg      = new StringBuilder().append(isos.stream().filter(iso -> ISO.NOT_FOUND != iso).map(iso -> iso.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
@@ -146,8 +161,8 @@ public class FramerController {
     @Operation(summary = "Returns a list of common sensors used in photography")
     public HttpResponse<?> getSensors(final HttpRequest request) {
         final List<SensorFormat> sensorFormats = Arrays.stream(SensorFormat.values()).toList();
-        final String msg = new StringBuilder().append(sensorFormats.stream().filter(sensorFormat -> SensorFormat.NOT_FOUND != sensorFormat).map(sensorFormat -> sensorFormat.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
-        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        final String             msg           = new StringBuilder().append(sensorFormats.stream().filter(sensorFormat -> SensorFormat.NOT_FOUND != sensorFormat).map(sensorFormat -> sensorFormat.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final HttpResponse       response      = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
 
@@ -161,8 +176,8 @@ public class FramerController {
     @Operation(summary = "Returns a list of common teleconverters used in photography")
     public HttpResponse<?> getTeleConverters(final HttpRequest request) {
         final List<TeleConverter> teleConverters = Arrays.stream(TeleConverter.values()).toList();
-        final String msg = new StringBuilder().append(teleConverters.stream().filter(teleConverter -> TeleConverter.NOT_FOUND != teleConverter).map(teleConverter -> teleConverter.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
-        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        final String              msg            = new StringBuilder().append(teleConverters.stream().filter(teleConverter -> TeleConverter.NOT_FOUND != teleConverter).map(teleConverter -> teleConverter.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final HttpResponse        response       = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
 }
