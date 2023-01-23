@@ -34,4 +34,13 @@ public class HelperTest {
         String roundedText = new StringBuilder().append(Helper.round(aperture, 1)).toString();
         assert roundedText.equals("1.4");
     }
+
+    @Test
+    void testCalculateEV() {
+        EV ev = Helper.calcExposureValue(Aperture.F_2_8, ShutterSpeed.SP_1_500, ISO.ISO_200);
+        assert ev == EV.EV_11;
+
+        ev = Helper.calcExposureValue(Aperture.F_8_0, ShutterSpeed.SP_1_500, ISO.ISO_200);
+        assert ev == EV.EV_14;
+    }
 }

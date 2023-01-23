@@ -35,11 +35,24 @@ public class Helper {
         }
     }
 
-    public  static final double round(final double value, final int places) {
+    public static final double round(final double value, final int places) {
         if (places < 0) throw new IllegalArgumentException("Number of places cannot be smaller than 0");
         BigDecimal bigDecimal = new BigDecimal(Double.toString(value));
         bigDecimal = bigDecimal.setScale(places, RoundingMode.HALF_UP);
         return bigDecimal.doubleValue();
+    }
+
+    public static final int round(final double value) {
+        final double absValue = Math.abs(value);
+        final int    i        = (int) absValue;
+        final double result   = absValue - (double) i;
+        return result < 0.5 ? (value < 0 ? -i : i) : (value < 0 ? (-i + 1) : i + 1);
+    }
+
+    public static final double log2(final double value) { return logBaseN(value, 2); }
+    public static final double logBaseN(final double value, final int base) {
+        if (base <= 0) { throw new IllegalArgumentException("base cannot be smaller or equal 0"); }
+        return (Math.log(value) / Math.log(base));
     }
 
     public static final double calcDistanceInKilometers(final GeoLocation location1, final GeoLocation location2) {
@@ -163,6 +176,11 @@ public class Helper {
     public static final double calcShutterSpeed(final Aperture aperture, final ISO iso) {
         final double shutterSpeed = (100 * (aperture.aperture * aperture.aperture)) / (iso.value * Math.pow(2, -7));
         return shutterSpeed;
+    }
+
+    public static final EV calcExposureValue(final Aperture aperture, final ShutterSpeed shutterSpeed, final ISO iso) {
+        final double ev = log2((100 * aperture.aperture * aperture.aperture) / (iso.value * shutterSpeed.value));
+        return EV.fromValue(ev);
     }
 
     public static final GeoLocation rotateCoordinate(final GeoLocation rotationCenter, final GeoLocation point, final double angleDeg) {

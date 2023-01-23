@@ -96,11 +96,11 @@ public class FramerController {
     @Header(name=CACHE_CONTROL,value="no-cache")
     @Operation(summary = "Converts the given focal length and aperture by the given teleconverter")
     public HttpResponse<?> calcTc(@Parameter(description="The focal length of the lens in mm (24, 35, 45, 50, 70, 85, 105, 200 etc.)") @Nullable final Integer focal_length,
-                                  @Parameter(description="The aperture of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final Double aperture,
+                                  @Parameter(description="The aperture of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final String aperture,
                                   @Parameter(description="The used teleconverter (tc_1_4, tc_2_0)") @Nullable final String tc,
                                   final HttpRequest request) {
         int           focalLength   = (null == focal_length || focal_length < 8 || focal_length > 2400) ? 50                   : focal_length;
-        Aperture      apert         = (null == aperture)                                                ? Aperture.F_2_8       : Aperture.fromNumber(aperture);
+        Aperture      apert         = (null == aperture)                                                ? Aperture.F_2_8       : Aperture.fromText(aperture);
         TeleConverter teleConverter = (null == tc)                                                      ? TeleConverter.TC_1_4 : TeleConverter.fromText(tc);
 
         if (Aperture.NOT_FOUND == apert) { apert = Aperture.F_2_8; }
@@ -111,7 +111,7 @@ public class FramerController {
 
         final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("focal_length").append(QUOTES).append(COLON).append(focalLength).append(COMMA)
-                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(Helper.round(apert.aperture, 1)).append(COMMA)
+                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(QUOTES).append(apert.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("tc").append(QUOTES).append(COLON).append(QUOTES).append(teleConverter.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("converted_focal_length").append(QUOTES).append(COLON).append(convertedFocalLength).append(COMMA)
                                               .append(QUOTES).append("converted_aperture").append(QUOTES).append(COLON).append(Helper.round(convertedAperture, 1))
@@ -120,6 +120,45 @@ public class FramerController {
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
+
+
+    /**
+     * Calculates the Exposure Value (EV) from the given aperture, shutter speed and iso values
+     * @param aperture The aperture of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)
+     * @param shutter_speed The shutter speed in seconds (sp_1_1000, sp_1_500, sp_1, sp_30 etc.)
+     * @param iso The used iso (iso_64, iso_100, iso_400, etc.)
+     * @return A JSON document that contains the calculated exposure value and the given aperture, shutter speed and iso
+     */
+    @Version("1")
+    @Get("/calc_tc{?aperture,shutter_speed,iso}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Header(name=CACHE_CONTROL,value="no-cache")
+    @Operation(summary = "Converts the given focal length and aperture by the given teleconverter")
+    public HttpResponse<?> calcEv(@Parameter(description="The aperture of the lens in 1/3 stop increments (f1_0, f1_1, f1_2, f1_4, f1_6, f1_8, f2_0 etc.)") @Nullable final String aperture,
+                                  @Parameter(description="The shutter speed in seconds (sp_1_1000, sp_1_500, sp_1, sp_30 etc.)") @Nullable final String shutter_speed,
+                                  @Parameter(description="The used iso (iso_64, iso_100, iso_400, etc.)") @Nullable final String iso,
+                                  final HttpRequest request) {
+        Aperture     apert        = (null == aperture)      ? Aperture.F_2_8        : Aperture.fromText(aperture);
+        ShutterSpeed shutterSpeed = (null == shutter_speed) ? ShutterSpeed.SP_1_125 : ShutterSpeed.fromText(shutter_speed);
+        ISO          i            = (null == iso)           ? ISO.ISO_100           : ISO.fromText(iso);
+
+        if (Aperture.NOT_FOUND     == apert)        { apert        = Aperture.F_2_8; }
+        if (ShutterSpeed.NOT_FOUND == shutterSpeed) { shutterSpeed = ShutterSpeed.SP_1_125; }
+        if (ISO.NOT_FOUND          == i)            { i            = ISO.ISO_100; }
+
+        EV ev = Helper.calcExposureValue(apert, shutterSpeed, i);
+
+        final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
+                                              .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(QUOTES).append(apert.apiString).append(QUOTES).append(COMMA)
+                                              .append(QUOTES).append("shutter_speed").append(QUOTES).append(COLON).append(QUOTES).append(shutterSpeed.apiString).append(QUOTES).append(COMMA)
+                                              .append(QUOTES).append("iso").append(QUOTES).append(COLON).append(QUOTES).append(i.apiString).append(QUOTES).append(COMMA)
+                                              .append(QUOTES).append("exposure_value").append(QUOTES).append(COLON).append(QUOTES).append(ev.apiString).append(QUOTES)
+                                              .append(CURLY_BRACKET_CLOSE)
+                                              .toString();
+        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
 
     /**
      * Returns a json document that contains a list of common apertures used in photography in steps of 1/3
@@ -148,6 +187,21 @@ public class FramerController {
         final List<ISO>    isos     = Arrays.stream(ISO.values()).toList();
         final String       msg      = new StringBuilder().append(isos.stream().filter(iso -> ISO.NOT_FOUND != iso).map(iso -> iso.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+    /**
+     * Returns a json document that contains a list of common shutter speeds
+     * @return a json document that contains a list of common shutter speeds
+     */
+    @Version("1")
+    @Get("/shutterspeeds")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Returns a list of common shutter speeds used in photography")
+    public HttpResponse<?> getShutterSpeeds(final HttpRequest request) {
+        final List<ShutterSpeed> shutterSpeeds = Arrays.stream(ShutterSpeed.values()).toList();
+        final String             msg           = new StringBuilder().append(shutterSpeeds.stream().filter(shutterSpeed -> ShutterSpeed.NOT_FOUND != shutterSpeed).map(shutterSpeed -> shutterSpeed.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final HttpResponse       response      = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
 
