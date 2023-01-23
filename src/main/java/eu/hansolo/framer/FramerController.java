@@ -130,7 +130,7 @@ public class FramerController {
      * @return A JSON document that contains the calculated exposure value and the given aperture, shutter speed and iso
      */
     @Version("1")
-    @Get("/calc_tc{?aperture,shutter_speed,iso}")
+    @Get("/calc_ev{?aperture,shutter_speed,iso}")
     @Produces(MediaType.APPLICATION_JSON)
     @Header(name=CACHE_CONTROL,value="no-cache")
     @Operation(summary = "Converts the given focal length and aperture by the given teleconverter")
