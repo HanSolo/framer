@@ -146,13 +146,13 @@ public class FramerController {
         if (ShutterSpeed.NOT_FOUND == shutterSpeed) { shutterSpeed = ShutterSpeed.SP_1_125; }
         if (ISO.NOT_FOUND          == i)            { i            = ISO.ISO_100; }
 
-        EV ev = Helper.calcExposureValue(apert, shutterSpeed, i);
+        final EV ev = Helper.calcExposureValue(apert, shutterSpeed, i);
 
         final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
                                               .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(QUOTES).append(apert.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("shutter_speed").append(QUOTES).append(COLON).append(QUOTES).append(shutterSpeed.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("iso").append(QUOTES).append(COLON).append(QUOTES).append(i.apiString).append(QUOTES).append(COMMA)
-                                              .append(QUOTES).append("exposure_value").append(QUOTES).append(COLON).append(ev.value)
+                                              .append(QUOTES).append("exposure_value").append(QUOTES).append(COLON).append(QUOTES).append(ev.apiString).append(QUOTES)
                                               .append(CURLY_BRACKET_CLOSE)
                                               .toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
@@ -232,6 +232,21 @@ public class FramerController {
         final List<TeleConverter> teleConverters = Arrays.stream(TeleConverter.values()).toList();
         final String              msg            = new StringBuilder().append(teleConverters.stream().filter(teleConverter -> TeleConverter.NOT_FOUND != teleConverter).map(teleConverter -> teleConverter.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse        response       = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+    /**
+     * Returns a json document that contains a list of exposure values used in photography
+     * @return a json document that contains a list of exposure values used in photography
+     */
+    @Version("1")
+    @Get("/exposurevalues")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Returns a list of exposure values used in photography")
+    public HttpResponse<?> getExposureValues(final HttpRequest request) {
+        final List<EV>     exposureValues = Arrays.stream(EV.values()).toList();
+        final String       msg            = new StringBuilder().append(exposureValues.stream().filter(ev -> EV.NOT_FOUND != ev).map(ev -> ev.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
+        final HttpResponse response       = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
 }
