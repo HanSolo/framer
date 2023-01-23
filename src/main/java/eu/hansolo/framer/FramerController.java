@@ -152,7 +152,7 @@ public class FramerController {
                                               .append(QUOTES).append("aperture").append(QUOTES).append(COLON).append(QUOTES).append(apert.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("shutter_speed").append(QUOTES).append(COLON).append(QUOTES).append(shutterSpeed.apiString).append(QUOTES).append(COMMA)
                                               .append(QUOTES).append("iso").append(QUOTES).append(COLON).append(QUOTES).append(i.apiString).append(QUOTES).append(COMMA)
-                                              .append(QUOTES).append("exposure_value").append(QUOTES).append(COLON).append(QUOTES).append(ev.apiString).append(QUOTES)
+                                              .append(QUOTES).append("exposure_value").append(QUOTES).append(COLON).append(ev.value)
                                               .append(CURLY_BRACKET_CLOSE)
                                               .toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
