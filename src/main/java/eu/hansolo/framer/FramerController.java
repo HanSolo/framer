@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -163,6 +164,61 @@ public class FramerController {
 
 
     /**
+     * Returns a json document that contains the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude, longitude and zoneid
+     * @param year      The year that will be used for the calculation
+     * @param month     The month that will be used for the calculation
+     * @param day       The day that will be used for the calculation
+     * @param latitude  The latitude coordinate of the camera location
+     * @param longitude The longitude coordinate of the camera location
+     * @param zoneid    The zone id of the camera location (e.g. europe_berlin)
+     * @return a json document that contains the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude, longitude and zoneid
+     */
+    @Version("1")
+    @Get("/calc_ephemeris{?year,month,day,latitude,longitude,zoneid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Header(name=CACHE_CONTROL,value="no-cache")
+    @Operation(summary = "Returns the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude and longitude")
+    public HttpResponse<?> calcEphemeris(@Parameter(description="The year that will be used for the calculation") @Nullable final Integer year,
+                                         @Parameter(description="The month that will be used for the calculation") @Nullable final Integer month,
+                                         @Parameter(description="The day that will be used for the calculation") @Nullable final Integer day,
+                                         @Parameter(description="The latitude coordinate of the camera location") @Nullable final Double latitude,
+                                         @Parameter(description="The longitude coordinate of the camera location") @Nullable final Double longitude,
+                                         @Parameter(description="The zone id of the camera location") @Nullable final String zoneid,
+                                         final HttpRequest request) {
+        final LocalDate now = LocalDate.now();
+        final int    y      = null             == year      ? now.getYear()          : Helper.clamp(1900, Integer.MAX_VALUE, year);
+        final int    m      = null             == month     ? now.getMonthValue()    : Helper.clamp(1, 12, month);
+        final int    d      = null             == day       ? now.getDayOfMonth()    : Helper.clamp(1, 31, day);
+        final double lat    = null             == latitude  ? 0                      : latitude;
+        final double lon    = null             == longitude ? 0                      : longitude;
+        final ZoneID zoneID = null             == zoneid    ? ZoneID.NOT_FOUND       : ZoneID.fromText(zoneid);
+        final ZoneId zd     = ZoneID.NOT_FOUND == zoneID    ? ZoneId.systemDefault() : zoneID.getZoneId();
+
+        long sunriseEpoch;
+        long sunsetEpoch;
+        try {
+            final Ephemeris ephemeris = new Ephemeris(y, m, d, lat, lon);
+            ephemeris.calcEphemeris(zd);
+            ephemeris.calcSunAndMoon();
+            sunriseEpoch = ephemeris.getSunrise().toEpochSecond();
+            sunsetEpoch  = ephemeris.getSunset().toEpochSecond();
+        } catch (Exception e) {
+            final long nowEpoch = Instant.now().getEpochSecond();
+            sunriseEpoch = nowEpoch;
+            sunsetEpoch  = nowEpoch;
+        }
+
+        final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
+                                              .append(QUOTES).append("sunrise").append(QUOTES).append(COLON).append(sunriseEpoch).append(COMMA)
+                                              .append(QUOTES).append("sunset").append(QUOTES).append(COLON).append(sunsetEpoch)
+                                              .append(CURLY_BRACKET_CLOSE)
+                                              .toString();
+        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+
+    /**
      * Returns a json document that contains a list of common apertures used in photography in steps of 1/3
      * @return a json document that contains a list of common apertures used in photography in steps of 1/3
      */
@@ -253,50 +309,16 @@ public class FramerController {
     }
 
     /**
-     * Returns a json document that contains the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude and longitude
-     * @param year      The year that will be used for the calculation
-     * @param month     The month that will be used for the calculation
-     * @param day       The day that will be used for the calculation
-     * @param latitude  The latitude coordinate of the camera location
-     * @param longitude The longitude coordinate of the camera location
-     * @return a json document that contains the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude and longitude
+     * Returns a json document that contains a list of all available zone ids with their offset
+     * @return a json document that contains a list of all available zone ids with their offset
      */
     @Version("1")
-    @Get("/calc_ephemeris{?year,month,day,latitude,longitude}")
+    @Get("/zoneids")
     @Produces(MediaType.APPLICATION_JSON)
-    @Header(name=CACHE_CONTROL,value="no-cache")
-    @Operation(summary = "Returns the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude and longitude")
-    public HttpResponse<?> calcEphemeris(@Parameter(description="The year that will be used for the calculation") @Nullable final Integer year,
-                                         @Parameter(description="The month that will be used for the calculation") @Nullable final Integer month,
-                                         @Parameter(description="The day that will be used for the calculation") @Nullable final Integer day,
-                                         @Parameter(description="The latitude coordinate of the camera location") @Nullable final Double latitude,
-                                         @Parameter(description="The longitude coordinate of the camera location") @Nullable final Double longitude,
-                                         final HttpRequest request) {
-        final LocalDate now = LocalDate.now();
-        final int    y   = null == year        ? now.getYear()       : Helper.clamp(1900, Integer.MAX_VALUE, year);
-        final int    m   = null == month       ? now.getMonthValue() : Helper.clamp(1, 12, month);
-        final int    d   = null == day         ? now.getDayOfMonth() : Helper.clamp(1, 31, day);
-        final double lat = null == latitude    ? 0   : latitude;
-        final double lon = null == longitude   ? 0   : longitude;
-
-        long sunriseEpoch;
-        long sunsetEpoch;
-        try {
-            final Ephemeris ephemeris = new Ephemeris(y, m, d, lat, lon);
-            ephemeris.calcSunAndMoon();
-            sunriseEpoch = ephemeris.getSunrise().toEpochSecond();
-            sunsetEpoch  = ephemeris.getSunset().toEpochSecond();
-        } catch (Exception e) {
-            final long nowEpoch = Instant.now().getEpochSecond();
-            sunriseEpoch = nowEpoch;
-            sunsetEpoch  = nowEpoch;
-        }
-
-        final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
-                                              .append(QUOTES).append("sunrise").append(QUOTES).append(COLON).append(sunriseEpoch).append(COMMA)
-                                              .append(QUOTES).append("sunset").append(QUOTES).append(COLON).append(sunsetEpoch)
-                                              .append(CURLY_BRACKET_CLOSE)
-                                              .toString();
+    @Operation(summary = "Returns a list of all available zone ids with their offset")
+    public HttpResponse<?> getZoneIds(final HttpRequest request) {
+        final List<ZoneID> zoneIds  = Arrays.stream(ZoneID.values()).toList();
+        final String       msg      = new StringBuilder().append(zoneIds.stream().filter(id -> ZoneID.NOT_FOUND != id).map(id -> id.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }

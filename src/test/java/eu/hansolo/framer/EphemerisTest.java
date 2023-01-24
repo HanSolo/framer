@@ -13,7 +13,7 @@ public class EphemerisTest {
     void testSunriseSunset() {
         try {
             final Ephemeris ephemeris = new Ephemeris(2023, 1, 24, HOME.getLatitude(), HOME.getLongitude());
-            ephemeris.calcEphemeris(ZoneId.of("Europe/Berlin"));
+            ephemeris.calcEphemeris(ZoneID.EUROPE_BERLIN.getZoneId());
             ephemeris.calcSunAndMoon();
             assert ephemeris.getSunrise().getHour()   == 8;
             assert ephemeris.getSunrise().getMinute() == 20;

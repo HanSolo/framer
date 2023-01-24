@@ -2,6 +2,17 @@ package eu.hansolo.framer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 
 public class Helper {
@@ -290,5 +301,27 @@ public class Helper {
         final double radius             = Math.sqrt((halfFovWidth * halfFovWidth) + (distance * distance));
 
         return new FovData(cameraLocation, subjectLocation, focalLengthInMeter, aperture, sensorFormat, orientation, infinite, hyperFocal, nearLimit, farLimit, frontPercent, behindPercent, total, diagonalAngle, diagonalLength, fovWidth, fovWidthAngle, fovHeight, fovHeightAngle, maxSubjectHeight, radius);
+    }
+
+    public static final Map<String, String> getAllZoneIdsAndItsOffset() {
+        final SortedMap<String, String> allZoneIdsAndOffsets = new TreeMap<>();
+        final LocalDateTime             localDateTime        = LocalDateTime.now();
+        for (String zoneId : ZoneId.getAvailableZoneIds()) {
+            ZoneId        id            = ZoneId.of(zoneId);
+            ZonedDateTime zonedDateTime = localDateTime.atZone(id);                                      // LocalDateTime -> ZonedDateTime
+            ZoneOffset    zoneOffset    = zonedDateTime.getOffset();                                     // ZonedDateTime -> ZoneOffset
+            String        offset        = zoneOffset.getId().replaceAll("Z", "+00:00"); // replace Z to +00:00
+            allZoneIdsAndOffsets.put(id.toString(), offset);
+        }
+        return allZoneIdsAndOffsets;
+    }
+
+    public static final List<String> getAllZoneIds() {
+        final List<String> allZoneIds = new ArrayList<>();
+        for (String zoneId : ZoneId.getAvailableZoneIds()) {
+            allZoneIds.add(ZoneId.of(zoneId).toString());
+        }
+        Collections.sort(allZoneIds);
+        return allZoneIds;
     }
 }
