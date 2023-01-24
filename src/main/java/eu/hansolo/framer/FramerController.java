@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -247,6 +249,55 @@ public class FramerController {
         final List<EV>     exposureValues = Arrays.stream(EV.values()).toList();
         final String       msg            = new StringBuilder().append(exposureValues.stream().filter(ev -> EV.NOT_FOUND != ev).map(ev -> ev.toString()).collect(Collectors.joining(COMMA, SQUARE_BRACKET_OPEN, SQUARE_BRACKET_CLOSE))).toString();
         final HttpResponse response       = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
+        return response;
+    }
+
+    /**
+     * Returns a json document that contains the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude and longitude
+     * @param year      The year that will be used for the calculation
+     * @param month     The month that will be used for the calculation
+     * @param day       The day that will be used for the calculation
+     * @param latitude  The latitude coordinate of the camera location
+     * @param longitude The longitude coordinate of the camera location
+     * @return a json document that contains the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude and longitude
+     */
+    @Version("1")
+    @Get("/calc_ephemeris{?year,month,day,latitude,longitude}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Header(name=CACHE_CONTROL,value="no-cache")
+    @Operation(summary = "Returns the times for sunrise and sunset in epoch seconds for the given year, month, day, latitude and longitude")
+    public HttpResponse<?> calcEphemeris(@Parameter(description="The year that will be used for the calculation") @Nullable final Integer year,
+                                         @Parameter(description="The month that will be used for the calculation") @Nullable final Integer month,
+                                         @Parameter(description="The day that will be used for the calculation") @Nullable final Integer day,
+                                         @Parameter(description="The latitude coordinate of the camera location") @Nullable final Double latitude,
+                                         @Parameter(description="The longitude coordinate of the camera location") @Nullable final Double longitude,
+                                         final HttpRequest request) {
+        final LocalDate now = LocalDate.now();
+        final int    y   = null == year        ? now.getYear()       : Helper.clamp(1900, Integer.MAX_VALUE, year);
+        final int    m   = null == month       ? now.getMonthValue() : Helper.clamp(1, 12, month);
+        final int    d   = null == day         ? now.getDayOfMonth() : Helper.clamp(1, 31, day);
+        final double lat = null == latitude    ? 0   : latitude;
+        final double lon = null == longitude   ? 0   : longitude;
+
+        long sunriseEpoch;
+        long sunsetEpoch;
+        try {
+            final Ephemeris ephemeris = new Ephemeris(y, m, d, lat, lon);
+            ephemeris.calcSunAndMoon();
+            sunriseEpoch = ephemeris.getSunrise().toEpochSecond();
+            sunsetEpoch  = ephemeris.getSunset().toEpochSecond();
+        } catch (Exception e) {
+            final long nowEpoch = Instant.now().getEpochSecond();
+            sunriseEpoch = nowEpoch;
+            sunsetEpoch  = nowEpoch;
+        }
+
+        final String msg = new StringBuilder().append(CURLY_BRACKET_OPEN)
+                                              .append(QUOTES).append("sunrise").append(QUOTES).append(COLON).append(sunriseEpoch).append(COMMA)
+                                              .append(QUOTES).append("sunset").append(QUOTES).append(COLON).append(sunsetEpoch)
+                                              .append(CURLY_BRACKET_CLOSE)
+                                              .toString();
+        final HttpResponse response = HttpResponse.ok(msg).contentType(MediaType.APPLICATION_JSON).status(HttpStatus.OK);
         return response;
     }
 }
