@@ -21,7 +21,7 @@ public class EphemerisTest {
             assert ephemeris.getSunset().getMinute()  == 2;
 
             ephemeris.setLocation(HELSINKI_CATHEDRAL.getLatitude(), HELSINKI_CATHEDRAL.getLongitude());
-            ephemeris.calcEphemeris(ZoneId.systemDefault());
+            ephemeris.calcEphemeris(ZoneID.EUROPE_BERLIN.getZoneId());
             ephemeris.calcSunAndMoon();
             assert ephemeris.getSunrise().getHour()   == 7;
             assert ephemeris.getSunrise().getMinute() == 53;
